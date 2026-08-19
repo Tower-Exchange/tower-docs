@@ -64,7 +64,7 @@ Tower provides consistent API endpoints across mainnet and testnet environments:
 
 | Environment | Base URL | Network / Chain ID |
 | :--- | :--- | :--- |
-| **Testnet (Railway Gateway)** | `https://tower-devapi.up.railway.app/api/public` | Arc Testnet (`5042002`) |
+| **Testnet** | `https://tower-devapi.up.railway.app/api/public` | Arc Testnet (`5042002`) |
 | **Production Mainnet** | `https://www.tower.exchange/api/public` | Arc Mainnet |
 
 ---
