@@ -18,3 +18,24 @@
 * [What is a Swap](fundamentals/what-is-a-swap.md)
 * [DEX Aggregation](fundamentals/dex-aggregation.md)
 * [Security](fundamentals/security.md)
+
+## DEVELOPER CONSOLE
+
+* [Overview](developer-console/overview.md)
+* [Authentication](developer-console/authentication.md)
+* [Quickstart Guide](developer-console/quickstart.md)
+* [Core Concepts](developer-console/core-concepts.md)
+* [Rate Limits & Compute Units](developer-console/rate-limits.md)
+* [Errors & Troubleshooting](developer-console/errors.md)
+* [SDKs & Helper Clients](developer-console/sdks.md)
+* [Testnet & Faucet](developer-console/testnet.md)
+
+### API REFERENCE
+* [Market Data — Fetch Token Prices](developer-console/api-reference/market-data.md)
+* [Wallet Indexer — Get Wallet Balance](developer-console/api-reference/wallet-indexer.md)
+* [Swap Engine](developer-console/api-reference/swap-engine.md)
+  * [List Supported DEX Routers](developer-console/api-reference/list-dex-routers.md)
+  * [Get Optimal Swap Quote](developer-console/api-reference/get-swap-quote.md)
+  * [Build Unsigned Swap Transaction](developer-console/api-reference/build-swap-tx.md)
+* [Node RPC — Proxy JSON-RPC Node](developer-console/api-reference/node-rpc.md)
+* [Cross-Chain Bridge — Initiate Bridge Transfer](developer-console/api-reference/cross-chain-bridge.md)
