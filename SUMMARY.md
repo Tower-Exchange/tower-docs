@@ -30,7 +30,8 @@
 * [SDKs & Helper Clients](developer-console/sdks.md)
 * [Testnet & Faucet](developer-console/testnet.md)
 
-### API REFERENCE
+## API REFERENCE
+
 * [Market Data — Fetch Token Prices](developer-console/api-reference/market-data.md)
 * [Wallet Indexer — Get Wallet Balance](developer-console/api-reference/wallet-indexer.md)
 * [Swap Engine](developer-console/api-reference/swap-engine.md)
