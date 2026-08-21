@@ -14,7 +14,7 @@ export const metadata = {
   title: "Tower Exchange Documentation",
   description: "Official documentation for Tower Exchange, Developer Console, APIs, and Smart Routing.",
   icons: {
-    icon: "/assets/towerlogo.svg",
+    icon: "/favicon.svg",
   },
 };
 
@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={sora.variable} suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/assets/towerlogo.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body className={`${sora.variable} min-h-screen bg-white text-slate-900 selection:bg-[#70B2FF]/30 font-sans flex flex-col antialiased`} suppressHydrationWarning>
         <DocsLayoutShell sections={sections}>
