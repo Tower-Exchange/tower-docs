@@ -20,7 +20,7 @@ layout:
     visible: true
 ---
 
-# Market Data — Fetch Token Prices
+# Fetch Token Prices
 
 ### `GET` `/api/public/prices`
 

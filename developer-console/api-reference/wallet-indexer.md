@@ -20,7 +20,7 @@ layout:
     visible: true
 ---
 
-# Wallet Indexer — Get Wallet Balance
+# Get Wallet Balance
 
 ### `POST` `/api/public/wallet/balance`
 

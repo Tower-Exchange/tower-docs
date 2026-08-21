@@ -32,11 +32,11 @@
 
 ## API REFERENCE
 
-* [Market Data — Fetch Token Prices](developer-console/api-reference/market-data.md)
-* [Wallet Indexer — Get Wallet Balance](developer-console/api-reference/wallet-indexer.md)
+* [Fetch Token Prices](developer-console/api-reference/market-data.md)
+* [Get Wallet Balance](developer-console/api-reference/wallet-indexer.md)
 * [Swap Engine](developer-console/api-reference/swap-engine.md)
   * [List Supported DEX Routers](developer-console/api-reference/list-dex-routers.md)
   * [Get Optimal Swap Quote](developer-console/api-reference/get-swap-quote.md)
   * [Build Unsigned Swap Transaction](developer-console/api-reference/build-swap-tx.md)
-* [Node RPC — Proxy JSON-RPC Node](developer-console/api-reference/node-rpc.md)
-* [Cross-Chain Bridge — Initiate Bridge Transfer](developer-console/api-reference/cross-chain-bridge.md)
+* [Proxy JSON-RPC Node](developer-console/api-reference/node-rpc.md)
+* [Cross-Chain Bridge](developer-console/api-reference/cross-chain-bridge.md)

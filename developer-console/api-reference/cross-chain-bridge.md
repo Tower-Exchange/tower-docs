@@ -20,7 +20,7 @@ layout:
     visible: true
 ---
 
-# Cross-Chain Bridge — Initiate Bridge Transfer
+# Cross-Chain Bridge
 
 ### `POST` `/api/public/bridge`
 

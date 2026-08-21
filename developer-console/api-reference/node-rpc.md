@@ -20,7 +20,7 @@ layout:
     visible: true
 ---
 
-# Node RPC — Proxy JSON-RPC Node
+# Proxy JSON-RPC Node
 
 ### `POST` `/api/public/rpc/{chainId}`
 
