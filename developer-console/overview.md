@@ -70,7 +70,7 @@ Tower provides consistent API endpoints across mainnet and testnet environments:
 
 ### Next Steps
 
-* [Authentication](authentication.md) — Learn how to obtain and pass API keys.
-* [Quickstart Guide](quickstart.md) — Execute your first swap quote and transaction build in 5 minutes.
-* [Core Concepts](core-concepts.md) — Understand smart routing, slippage, and calldata execution.
-* [API Reference](api-reference/market-data.md) — Explore the complete endpoint documentation.
+* [Authentication](authentication) — Learn how to obtain and pass API keys.
+* [Quickstart Guide](quickstart) — Execute your first swap quote and transaction build in 5 minutes.
+* [Core Concepts](core-concepts) — Understand smart routing, slippage, and calldata execution.
+* [API Reference](api-reference/market-data) — Explore the complete endpoint documentation.
