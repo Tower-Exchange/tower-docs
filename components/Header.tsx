@@ -66,7 +66,7 @@ export default function Header({ onOpenSearch, onToggleSidebar, isSidebarOpen }:
           >
             <Code2 className="w-4 h-4 shrink-0" />
             <span>Developer Console</span>
-            <ExternalLink className="w-3 h-3 text-slate-900/70 shrink-0" />
+            <ExternalLink className="w-3 h-3 shrink-0" />
           </a>
         </div>
       </div>

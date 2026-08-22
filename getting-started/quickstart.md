@@ -45,7 +45,6 @@ The main interface is designed for simplicity. It includes:
 * **Profile:** A personal dashboard displaying wallet details, positions, and account activity at a glance.
 * **Recurring Orders:** The interface that allows users to set up automated, recurring swaps at specified intervals, removing the need to manually execute repetitive trades.
 * **Faucet**: Get verified links to claim testnet tokens, allowing users to explore and test Tower Exchange's features without using real funds
-* **Bell Points: Coming Soon**
 
 #### **Make First Swap**
 

@@ -1,0 +1,1130 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Tower Developer Public API Reference",
+    "description": "# Overview\n\nTower Console is the developer platform and REST API for Tower Exchange. It allows you to integrate stablecoin trading, cross-chain transfers, automated recurring orders, and AI trade execution directly into your applications. You can build mobile payment applications, automated corporate treasury desks, trading bots, and AI agents with a single integration point for stablecoin liquidity on the Arc blockchain.\n\n ## 1. Introduction\n\nTower Console provides the unified developer API and infrastructure layer for Tower Exchange. Through a single REST interface, you connect your software to deep stablecoin liquidity pools across the Arc ecosystem. You can discover supported tokens and networks, execute optimal swap routing, trigger cross-chain USDC transfers via Circle Cross-Chain Transfer Protocol (CCTP), query real-time market spot rates, and proxy node RPC requests.\n\nWhether you run an institutional settlement service, a decentralized finance protocol, an automated market maker, or an autonomous AI agent, Tower abstracts decentralized protocol interactions into clean HTTP methods and JSON payloads. Jump directly to the Quick Start section below to build your first transaction.\n\n---\n\n## 2. Authentication\n\nTower Console uses API keys to authenticate all API requests. You obtain your API key by creating an account at `https://devs.tower.exchange`. After you sign in, navigate to the Developer Console, create a new API key, and copy the secret key value.\n\nYou pass your API key in either the `Authorization` header as a Bearer token or in the `x-api-key` header on every request. All API communication requires HTTPS. The server rejects unencrypted HTTP requests automatically.\n\nHere is a curl example:\n\n```bash\ncurl -X GET \"https://www.tower.exchange/api/public/tokens\" \\\n  -H \"Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\"\n```\n\n---\n\n## 3. Quick Start\n\nThis guide walks you through executing a swap of 100 USDC to EURC on the Arc network using Tower Public APIs.\n\n### Step 1: Request a Swap Quote\nYou send a POST request to `/api/public/swap/quote` with the input asset, output asset, input amount, and slippage tolerance. Because USDC uses 6 decimal places, 100 USDC equals `100000000` base atomic units.\n\n### Step 2: Build the Swap Transaction Payload\nYou take the quote object from Step 1 and send it along with your wallet address to `/api/public/swap/build-tx`. Tower returns the unsigned transaction data for ERC-20 approval and the main swap execution contract.\n\n### Step 3: Sign and Broadcast the Transaction\nYour application signs the transaction payload using your private key and broadcasts it to the Arc network through `/api/public/rpc/5042002` or your local wallet provider. Tower operates non-custodially and never holds your private keys.\n\n### Code Samples\n\n#### cURL\n\n```bash\n# Step 1: Request Quote for 100 USDC to EURC\ncurl -X POST \"https://www.tower.exchange/api/public/swap/quote\" \\\n  -H \"Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"inputToken\": \"USDC\",\n    \"outputToken\": \"EURC\",\n    \"inputAmount\": \"100000000\",\n    \"slippageTolerance\": 50\n  }'\n\n# Step 2: Build the unsigned transaction payload\ncurl -X POST \"https://www.tower.exchange/api/public/swap/build-tx\" \\\n  -H \"Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"quote\": {\n      \"inputToken\": \"0x3600000000000000000000000000000000000000\",\n      \"outputToken\": \"0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a\",\n      \"inputAmount\": \"100000000\",\n      \"outputAmount\": \"92450000000000000000\",\n      \"minOut\": \"91987750000000000000\",\n      \"priceImpact\": 0.02,\n      \"feeBps\": 25,\n      \"dexId\": \"tower-dex\"\n    },\n    \"userAddress\": \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\"\n  }'\n\n# Step 3: Broadcast signed raw transaction via RPC Proxy\ncurl -X POST \"https://www.tower.exchange/api/public/rpc/5042002\" \\\n  -H \"Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"eth_sendRawTransaction\",\n    \"params\": [\"0x02f873018203e8843b9aca008502540be400825208942de8906a641d65d490bc60a4179d961d59742bcb8084cd6267d5c080a0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f01234a056789abcdef0123456789abcdef0123456789abcdef0123456789abcdef012345\"],\n    \"id\": 1\n  }'\n```\n\n#### JavaScript (Fetch)\n\n```javascript\nconst API_KEY = \"sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\";\nconst BASE_URL = \"https://www.tower.exchange/api/public\";\nconst WALLET_ADDRESS = \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\";\n\nasync function executeSwap() {\n  const headers = {\n    \"Authorization\": \"Bearer \" + API_KEY,\n    \"Content-Type\": \"application/json\"\n  };\n\n  // Step 1: Request a swap quote for 100 USDC to EURC\n  const quoteResponse = await fetch(BASE_URL + \"/swap/quote\", {\n    method: \"POST\",\n    headers: headers,\n    body: JSON.stringify({\n      inputToken: \"USDC\",\n      outputToken: \"EURC\",\n      inputAmount: \"100000000\",\n      slippageTolerance: 50\n    })\n  });\n\n  const quoteResult = await quoteResponse.json();\n  if (!quoteResult.success) {\n    throw new Error(\"Quote failed: \" + quoteResult.error);\n  }\n\n  const quote = quoteResult.data;\n  console.log(\"Expected output:\", quote.outputAmount, \"raw units on\", quote.dexName);\n\n  // Step 2: Build the unsigned transaction payload\n  const buildTxResponse = await fetch(BASE_URL + \"/swap/build-tx\", {\n    method: \"POST\",\n    headers: headers,\n    body: JSON.stringify({\n      quote: quote,\n      userAddress: WALLET_ADDRESS\n    })\n  });\n\n  const txResult = await buildTxResponse.json();\n  if (!txResult.success) {\n    throw new Error(\"Build transaction failed: \" + txResult.error);\n  }\n\n  console.log(\"Approval payload required:\", txResult.data.approval !== null);\n  console.log(\"Swap payload target contract:\", txResult.data.swap.to);\n  console.log(\"Swap execution calldata:\", txResult.data.swap.data);\n  return txResult.data;\n}\n\nexecuteSwap().catch(console.error);\n```\n\n#### Python (Requests)\n\n```python\nimport requests\n\nAPI_KEY = \"sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\"\nBASE_URL = \"https://www.tower.exchange/api/public\"\nWALLET_ADDRESS = \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\"\n\nheaders = {\n    \"Authorization\": \"Bearer \" + API_KEY,\n    \"Content-Type\": \"application/json\"\n}\n\n# Step 1: Request a swap quote for 100 USDC to EURC\nquote_payload = {\n    \"inputToken\": \"USDC\",\n    \"outputToken\": \"EURC\",\n    \"inputAmount\": \"100000000\",\n    \"slippageTolerance\": 50\n}\n\nquote_response = requests.post(BASE_URL + \"/swap/quote\", headers=headers, json=quote_payload)\nquote_data = quote_response.json()\n\nif not quote_data.get(\"success\"):\n    raise Exception(\"Quote failed: \" + str(quote_data.get(\"error\")))\n\nquote = quote_data[\"data\"]\nprint(\"Optimal DEX: \" + str(quote[\"dexName\"]) + \", Expected Output: \" + str(quote[\"outputAmount\"]))\n\n# Step 2: Build unsigned transaction payload\nbuild_payload = {\n    \"quote\": quote,\n    \"userAddress\": WALLET_ADDRESS\n}\n\nbuild_response = requests.post(BASE_URL + \"/swap/build-tx\", headers=headers, json=build_payload)\ntx_data = build_response.json()\n\nif not tx_data.get(\"success\"):\n    raise Exception(\"Build TX failed: \" + str(tx_data.get(\"error\")))\n\nswap_tx = tx_data[\"data\"][\"swap\"]\nprint(\"Target Contract: \" + str(swap_tx[\"to\"]))\nprint(\"Calldata: \" + str(swap_tx[\"data\"]))\n```\n\n### Expected Response Shape\n\nHere is the response returned by `POST /api/public/swap/quote`:\n\n```json\n{\n  \"success\": true, // Indicates whether the quote calculation succeeded\n  \"data\": {\n    \"inputToken\": \"0x3600000000000000000000000000000000000000\", // Smart contract address of the input token (USDC on Arc)\n    \"outputToken\": \"0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a\", // Smart contract address of the output token (EURC on Arc)\n    \"inputAmount\": \"100000000\", // Exact trade volume spent in atomic base units (6 decimals for 100 USDC)\n    \"outputAmount\": \"92450000000000000000\", // Anticipated return in 18-decimal normalized units (92.45 EURC)\n    \"minOut\": \"91987750000000000000\", // Guaranteed floor payout based on 50 basis points (0.5%) slippage tolerance\n    \"priceImpact\": 0.02, // Percentage price movement caused by order size relative to available pool reserves\n    \"gasEstimate\": \"200000\", // Estimated computational gas units required for on-chain execution\n    \"feeBps\": 25, // Protocol and liquidity provider fee in basis points (0.25%)\n    \"platformFeeAmount\": \"250000000000000\", // Protocol fee component calculated in atomic base units\n    \"dexId\": \"tower-dex\", // Unique identifier of the decentralized exchange pool providing the best price\n    \"dexName\": \"Tower\", // Human-readable name of the selected decentralized exchange\n    \"route\": { // Optimal routing path structure\n      \"type\": \"single\", // Routing topology (single hop, multi hop, or split order)\n      \"hops\": [\n        {\n          \"dexId\": \"tower-dex\", // AMM venue executing this trade leg\n          \"amountIn\": \"100000000\", // Asset volume entering this pool\n          \"amountOut\": \"92450000000000000000\", // Asset volume leaving this pool\n          \"priceImpact\": 0.02 // Price impact specific to this individual pool\n        }\n      ]\n    },\n    \"routeOptions\": [] // Ranked list of candidate routes across competing DEX venues for price comparison\n  }\n}\n```\n\n---\n\n## 4. Core Concepts\n\n### Smart Routing\nSmart routing is an automated algorithmic engine that splits and directs trade volume across multiple liquidity pools on Arc to secure the best execution price. Much like a flight search engine that combines different airline legs to find the lowest fare, smart routing scans Synthra, UnitFlow, and Tower DEX simultaneously. This mechanism minimizes price impact and prevents trade slippage across individual pools.\n\n### Token Addresses vs Token Symbols\nToken symbols like `USDC` or `EURC` are human-readable ticker aliases, while token addresses are unique hexadecimal contract identifiers on the blockchain. You can pass standard symbols in swap requests for convenience or query `GET /api/public/tokens` to discover all valid tokens and their decimal specifications. Programmatic integrations and balance lookups should always supply explicit contract addresses to ensure asset certainty.\n\n### Slippage Tolerance\nSlippage is the difference between the expected price of a trade and the final executed price caused by market movement while your transaction processes, much like prices changing between picking an item off a shelf and paying at the register. Slippage tolerance defines the maximum price variance in basis points you accept before the smart contract automatically reverts the trade. The standard default is 50 basis points (0.5%), but you can tighten it to 10 basis points (0.1%) for institutional order sizes or widen it during periods of high market volatility.\n\n### Transaction Signing\nTower operates on a non-custodial model, meaning it acts like a route mapper that gives you directions while you keep hold of your car keys. When you call `/api/public/swap/build-tx`, Tower computes the optimal route, prepares the bytecode, and returns an unsigned transaction payload. Your application signs this payload with its private key and broadcasts it to the network, ensuring Tower never holds custody of your funds.\n\n### Supported Networks\nTower operates natively on Arc mainnet and Arc testnet. For cross-chain USDC transfers via Circle CCTP, Tower connects Arc with Ethereum, Base, Arbitrum, Optimism, Avalanche, Polygon, Linea, Sonic, Unichain, and Solana. You can query `GET /api/public/chains` at any time to inspect all active chain IDs and network capabilities.\n\n---\n\n## 5. API Reference Summary\n\nTower public developer endpoints are organized into six core modules:\n\n1. **Token Registry**: Supported asset catalog and contract addresses via `GET /api/public/tokens`.\n2. **Network Registry**: Supported chain IDs and feature capabilities via `GET /api/public/chains`.\n3. **Market Data**: Spot exchange rates via `GET /api/public/prices`.\n4. **Wallet Indexer**: Multi-chain balance verification via `POST /api/public/wallet/balance`.\n5. **Swap Engine**: Liquidity venue discovery via `GET /api/public/swap/dexes`, route quotes via `POST /api/public/swap/quote`, and transaction calldata construction via `POST /api/public/swap/build-tx`.\n6. **Node RPC & Bridge**: High availability proxy requests via `POST /api/public/rpc/{chainId}` and Circle CCTP transfers via `POST /api/public/bridge`.\n\nSee the detailed endpoint specifications below for full parameter references, schemas, and live test consoles.\n\n---\n\n## 6. Error Handling\n\nTower returns standard JSON error responses across all API endpoints when a request cannot be processed.\n\nStandard error response format:\n```json\n{\n  \"success\": false,\n  \"error\": \"Error message describing the failure condition\",\n  \"status\": 400\n}\n```\n\n### Common Error Codes and Resolutions\n\n- **`INVALID_API_KEY` (HTTP 401)**\n  - *Cause*: The API key in the `Authorization` or `x-api-key` header is missing, malformed, or revoked.\n  - *Resolution*: Check that your key begins with `sk_live_` or `sk_test_` and pass it in the request headers.\n\n- **`INSUFFICIENT_LIQUIDITY` (HTTP 404)**\n  - *Cause*: The requested order size exceeds available pool reserves across all Arc DEXes.\n  - *Resolution*: Reduce the `inputAmount` or split the order into smaller increments over time.\n\n- **`SLIPPAGE_EXCEEDED` (HTTP 400)**\n  - *Cause*: Market price moved beyond the configured `slippageTolerance` between quote generation and execution.\n  - *Resolution*: Request a fresh quote or increase `slippageTolerance` (for example, from 50 to 100 basis points).\n\n- **`QUOTE_EXPIRED` (HTTP 400)**\n  - *Cause*: The quote validity window elapsed before the transaction was broadcast to the network.\n  - *Resolution*: Quotes are time-sensitive market snapshots. You should wrap all swap and bridge execution calls in retry logic that fetches a fresh quote if execution takes longer than 60 seconds.\n\n- **`INVALID_TOKEN` (HTTP 400)**\n  - *Cause*: The supplied token symbol or contract address is unsupported or invalid.\n  - *Resolution*: Check the contract address against supported assets on Arc (USDC, EURC, USDT, cirBTC, USYC, QTM, SWPRC, SYN) or call `GET /api/public/tokens`.\n\n- **`UNSUPPORTED_CHAIN` (HTTP 400)**\n  - *Cause*: The requested `chainId` is not recognized by the RPC proxy or bridge service.\n  - *Resolution*: Pass a valid chain identifier like `5042002` for Arc Testnet or `84532` for Base Sepolia, or inspect `GET /api/public/chains`.\n\n- **`RATE_LIMIT_EXCEEDED` (HTTP 429)**\n  - *Cause*: Your request volume exceeded the compute unit rate limit for your tier.\n  - *Resolution*: Implement exponential backoff retry logic and observe the `Retry-After` header.\n\n- **`WALLET_NOT_FOUND` (HTTP 400)**\n  - *Cause*: The provided wallet address is improperly formatted or has an invalid checksum.\n  - *Resolution*: Verify that the wallet address is a valid 42-character hexadecimal EVM address or base58 Solana address.\n\n---\n\n## 7. Rate Limits\n\nTower enforces rate limits based on compute units (CU) consumed per minute.\n\n| Plan Tier | Rate Limit (Requests / Min) | Monthly Compute Units | Burst Capacity |\n| :--- | :--- | :--- | :--- |\n| **Developer (Free)** | 60 req/min | 100,000 CU | 10 req/sec |\n| **Growth (Paid)** | 600 req/min | 2,000,000 CU | 50 req/sec |\n| **Enterprise (Custom)** | Custom | Dedicated Node Pool | Custom |\n\nEvery API response returns rate limit status headers:\n- `X-RateLimit-Limit`: Maximum requests permitted in the current 60-second window.\n- `X-RateLimit-Remaining`: Number of requests remaining in the active window.\n- `Retry-After`: Seconds to wait before retrying when a 429 response is returned.\n\n### Handling 429 Responses with Exponential Backoff\n\nWhen you receive a 429 status code, pause execution and retry with increasing intervals:\n\n```javascript\nasync function fetchWithRetry(url, options, maxRetries = 4, baseDelayMs = 500) {\n  for (let attempt = 0; attempt < maxRetries; attempt++) {\n    const response = await fetch(url, options);\n\n    if (response.status !== 429) {\n      return response;\n    }\n\n    const retryAfter = response.headers.get(\"Retry-After\");\n    const delay = retryAfter ? parseInt(retryAfter, 10) * 1000 : baseDelayMs * Math.pow(2, attempt);\n    console.warn(\"Rate limit hit (429). Retrying in \" + delay + \"ms\");\n    await new Promise((resolve) => setTimeout(resolve, delay));\n  }\n\n  throw new Error(\"Max retries exceeded for rate limited endpoint.\");\n}\n```\n\n---\n\n## 8. SDKs and Libraries\n\nOfficial SDKs for TypeScript and Python are under active development. In the meantime, you interact directly with the REST API.\n\nHere is a complete, reusable JavaScript helper class that wraps authentication, manages quote-and-swap workflows, and handles errors:\n\n```javascript\nclass TowerClient {\n  constructor(apiKey, baseUrl = \"https://www.tower.exchange/api/public\") {\n    this.apiKey = apiKey;\n    this.baseUrl = baseUrl;\n  }\n\n  async request(endpoint, options = {}) {\n    const url = this.baseUrl + endpoint;\n    const requestHeaders = Object.assign(\n      {\n        \"Authorization\": \"Bearer \" + this.apiKey,\n        \"Content-Type\": \"application/json\"\n      },\n      options.headers || {}\n    );\n\n    const fetchConfig = Object.assign({}, options, { headers: requestHeaders });\n    const response = await fetch(url, fetchConfig);\n    const data = await response.json();\n\n    if (!response.ok || data.success === false) {\n      const errorMessage = data.error || \"HTTP error \" + response.status;\n      throw new Error(\"Tower API Error [\" + response.status + \"]: \" + errorMessage);\n    }\n\n    return data;\n  }\n\n  async getTokens() {\n    return this.request(\"/tokens\", { method: \"GET\" });\n  }\n\n  async getChains() {\n    return this.request(\"/chains\", { method: \"GET\" });\n  }\n\n  async getPrices() {\n    return this.request(\"/prices\", { method: \"GET\" });\n  }\n\n  async getWalletBalance(address, chainId, rpcUrl, tokenAddress, balanceType = \"token\") {\n    return this.request(\"/wallet/balance\", {\n      method: \"POST\",\n      body: JSON.stringify({ address, chainId, rpcUrl, tokenAddress, balanceType })\n    });\n  }\n\n  async getSwapQuote(inputToken, outputToken, inputAmount, slippageTolerance = 50) {\n    return this.request(\"/swap/quote\", {\n      method: \"POST\",\n      body: JSON.stringify({ inputToken, outputToken, inputAmount, slippageTolerance })\n    });\n  }\n\n  async buildSwapTransaction(quote, userAddress) {\n    return this.request(\"/swap/build-tx\", {\n      method: \"POST\",\n      body: JSON.stringify({ quote, userAddress })\n    });\n  }\n\n  async swap(inputToken, outputToken, inputAmount, userAddress, slippageTolerance = 50) {\n    const quoteResponse = await this.getSwapQuote(inputToken, outputToken, inputAmount, slippageTolerance);\n    const quote = quoteResponse.data;\n    const txResponse = await this.buildSwapTransaction(quote, userAddress);\n    return {\n      quote: quote,\n      transactions: txResponse.data\n    };\n  }\n}\n\n// Example usage:\nasync function main() {\n  const tower = new TowerClient(\"sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\");\n  const result = await tower.swap(\"USDC\", \"EURC\", \"100000000\", \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\", 50);\n  console.log(\"Optimal Route:\", result.quote.dexName);\n  console.log(\"Swap Calldata:\", result.transactions.swap.data);\n}\n\nmain().catch(console.error);\n```\n\n---\n\n## 9. Testnet\n\nTower provides identical API endpoints across mainnet and testnet environments.\n\nTo switch environments, update the base URL in your requests:\n- **Testnet Gateway (Railway)**: `https://www.tower.exchange/api/public`\n- **Mainnet Gateway**: `https://www.tower.exchange/api/public`\n\nYou use the same API key on testnet as you do on mainnet. Testnet transactions execute on the Arc Testnet (`chainId: 5042002`) and do not cost real funds.\n\nTo obtain testnet tokens:\n1. Visit the Tower Faucet at `https://tower.exchange/faucet`.\n2. Connect your wallet or input your Arc address.\n3. Request testnet USDC, EURC, and native gas tokens. Tokens credit to your address within seconds.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Tower Developer Page",
+      "url": "https://devs.tower.exchange"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://www.tower.exchange",
+      "description": "Tower Public API (Testnet & Mainnet)"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    },
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Token Registry",
+      "description": "Catalog of supported tokens, contract addresses, and decimal definitions across Arc and bridged chains."
+    },
+    {
+      "name": "Network Registry",
+      "description": "List of supported blockchain networks, chain IDs, and enabled infrastructure features."
+    },
+    {
+      "name": "Market Data",
+      "description": "Real-time stablecoin exchange rates and market pricing."
+    },
+    {
+      "name": "Wallet Indexer",
+      "description": "Multi-chain wallet balance querying for ERC-20, SPL, and native gas assets."
+    },
+    {
+      "name": "Swap Engine",
+      "description": "DEX discovery, route quote optimization, and transaction payload construction."
+    },
+    {
+      "name": "Cross-Chain Bridge",
+      "description": "Circle CCTP bridging operations across EVM networks and Solana."
+    },
+    {
+      "name": "Node RPC",
+      "description": "Upstream JSON-RPC node proxy with automatic retry and error fallback."
+    }
+  ],
+  "paths": {
+    "/api/public/tokens": {
+      "get": {
+        "tags": [
+          "Token Registry"
+        ],
+        "summary": "List Supported Tokens",
+        "description": "Returns the full catalog of supported tokens on Arc and connected CCTP networks, including symbols, decimal precision, native gas designations, and smart contract addresses.\n\n**Authentication:** Required (`Bearer <API_KEY>` or `x-api-key: <API_KEY>`)  \n**Cost:** `1 CU`\n\n#### Request Parameters\nNone.\n\n#### Request Body\nNone.\n\n#### Response Body Example\n```json\n{\n  \"success\": true, // Operation status indicator\n  \"data\": [\n    {\n      \"symbol\": \"USDC\", // Token ticker symbol\n      \"name\": \"USD Coin\", // Official asset name\n      \"decimals\": 6, // Fractional decimal places\n      \"address\": \"0x3600000000000000000000000000000000000000\", // Smart contract address on Arc Testnet\n      \"isNativeGas\": true, // Indicates if asset pays network gas fees on Arc\n      \"chainId\": 5042002, // Arc Testnet chain ID\n      \"chainKey\": \"arc-testnet\", // Human-readable network key\n      \"bridgeAddresses\": { // Contract addresses on external CCTP chains\n        \"arc-testnet\": \"0x3600000000000000000000000000000000000000\",\n        \"base-sepolia\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n        \"arbitrum-sepolia\": \"0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d\",\n        \"solana\": \"4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU\"\n      }\n    },\n    {\n      \"symbol\": \"EURC\",\n      \"name\": \"Euro Coin\",\n      \"decimals\": 6,\n      \"address\": \"0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a\",\n      \"isNativeGas\": false,\n      \"chainId\": 5042002,\n      \"chainKey\": \"arc-testnet\"\n    }\n  ]\n}\n```\n\n#### cURL Example\n```bash\ncurl -X GET \"https://www.tower.exchange/api/public/tokens\" \\\n  -H \"Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\"\n```\n\n#### Common Error Responses\n- **401 Unauthorized**: Missing or invalid Developer API key.\n- **429 Too Many Requests**: Rate limit quota exceeded.",
+        "operationId": "getTokens",
+        "responses": {
+          "200": {
+            "description": "List of supported tokens and contract addresses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokensResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitError"
+          }
+        }
+      }
+    },
+    "/api/public/chains": {
+      "get": {
+        "tags": [
+          "Network Registry"
+        ],
+        "summary": "List Supported Chains",
+        "description": "Returns all supported blockchain networks with their chain IDs, RPC endpoints, block explorers, and enabled features (swaps, bridge, RPC proxy, wallet balance).\n\n**Authentication:** Required (`Bearer <API_KEY>` or `x-api-key: <API_KEY>`)  \n**Cost:** `1 CU`\n\n#### Request Parameters\nNone.\n\n#### Request Body\nNone.\n\n#### Response Body Example\n```json\n{\n  \"success\": true, // Operation status indicator\n  \"data\": [\n    {\n      \"chainId\": \"5042002\", // Primary chain identifier\n      \"numericId\": 5042002, // EVM numeric identifier\n      \"name\": \"Arc Testnet\", // Display network name\n      \"key\": \"arc-testnet\", // Standard identifier key\n      \"type\": \"evm\", // Blockchain architecture type\n      \"nativeCurrency\": { \"name\": \"USD Coin\", \"symbol\": \"USDC\", \"decimals\": 18 },\n      \"rpcUrl\": \"https://rpc.testnet.arc.network\", // Default network RPC endpoint\n      \"explorerUrl\": \"https://testnet.arcscan.app\", // Block explorer base URL\n      \"supportedFeatures\": [\"swaps\", \"bridge\", \"rpc-proxy\", \"wallet-balance\"] // Available operations\n    },\n    {\n      \"chainId\": \"84532\",\n      \"numericId\": 84532,\n      \"name\": \"Base Sepolia\",\n      \"key\": \"base-sepolia\",\n      \"type\": \"evm\",\n      \"nativeCurrency\": { \"name\": \"Sepolia Ether\", \"symbol\": \"ETH\", \"decimals\": 18 },\n      \"rpcUrl\": \"https://sepolia.base.org\",\n      \"explorerUrl\": \"https://sepolia.basescan.org\",\n      \"supportedFeatures\": [\"bridge\", \"rpc-proxy\", \"wallet-balance\"]\n    }\n  ]\n}\n```\n\n#### cURL Example\n```bash\ncurl -X GET \"https://www.tower.exchange/api/public/chains\" \\\n  -H \"Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\"\n```\n\n#### Common Error Responses\n- **401 Unauthorized**: Missing or invalid Developer API key.\n- **429 Too Many Requests**: Rate limit quota exceeded.",
+        "operationId": "getChains",
+        "responses": {
+          "200": {
+            "description": "List of supported blockchain networks and capabilities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChainsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitError"
+          }
+        }
+      }
+    },
+    "/api/public/prices": {
+      "get": {
+        "tags": [
+          "Market Data"
+        ],
+        "summary": "Fetch Token Prices",
+        "description": "Get current spot prices in USD for supported stablecoins (USDC, EURC, USDT) from CoinGecko.\n\n**Authentication:** Required (`Bearer <API_KEY>` or `x-api-key: <API_KEY>`)\n\n#### Request Parameters\nNone (GET request without query parameters).\n\n#### Request Body\nNone.\n\n#### Response Body Example\n```json\n{\n  \"usd-coin\": {\n    \"usd\": 1.0 // USDC spot price in USD\n  },\n  \"eurc\": {\n    \"usd\": 1.082 // EURC spot price in USD\n  },\n  \"tether\": {\n    \"usd\": 1.001 // USDT spot price in USD\n  }\n}\n```\n\n#### cURL Example\n```bash\ncurl -X GET \"https://www.tower.exchange/api/public/prices\" \\\n  -H \"Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\"\n```\n\n#### Common Error Responses\n- **401 Unauthorized**: Missing or invalid Developer API key.\n- **429 Too Many Requests**: Rate limit quota exceeded.",
+        "operationId": "getPrices",
+        "responses": {
+          "200": {
+            "description": "Successful token price mapping in USD",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Allowed requests per minute window"
+              },
+              "X-RateLimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests remaining in the active window"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPricesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitError"
+          },
+          "502": {
+            "$ref": "#/components/responses/UpstreamServiceError"
+          }
+        }
+      }
+    },
+    "/api/public/wallet/balance": {
+      "post": {
+        "tags": [
+          "Wallet Indexer"
+        ],
+        "summary": "Get Wallet Balance",
+        "description": "Query the on-chain token balance (ERC-20/SPL) or native gas balance for any user address across supported EVM networks and Solana.\n\n**Authentication:** Required (`Bearer <API_KEY>` or `x-api-key: <API_KEY>`)\n\n#### Request Parameters\n\n| Name | Type | Required | Description |\n| :--- | :--- | :--- | :--- |\n| `address` | string | Required | Target wallet address (0x EVM address or base58 Solana address). |\n| `chainId` | string | Required | Network identifier such as `arc-testnet`, `base-sepolia`, `arbitrum-sepolia`, or `solana`. |\n| `rpcUrl` | string | Required | RPC node URL used to read on-chain state. |\n| `tokenAddress` | string | Optional | Contract address of the token asset. Ignored if `balanceType` is set to `native`. |\n| `balanceType` | string | Optional | Balance query type: `token` (default, queries ERC-20/SPL) or `native` (queries native gas balance). |\n\n#### Request Body Example\n```json\n{\n  \"address\": \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\",\n  \"chainId\": \"arc-testnet\",\n  \"rpcUrl\": \"https://rpc.testnet.arc.network\",\n  \"tokenAddress\": \"0x3600000000000000000000000000000000000000\",\n  \"balanceType\": \"token\"\n}\n```\n\n#### Response Body Example\n```json\n{\n  \"balance\": \"100.500000\" // Human-readable token balance formatted with asset decimals\n}\n```\n\n#### cURL Example\n```bash\ncurl -X POST \"https://www.tower.exchange/api/public/wallet/balance\" \\\n  -H \"Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"address\": \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\",\n    \"chainId\": \"arc-testnet\",\n    \"rpcUrl\": \"https://rpc.testnet.arc.network\",\n    \"tokenAddress\": \"0x3600000000000000000000000000000000000000\",\n    \"balanceType\": \"token\"\n  }'\n```\n\n#### Common Error Responses\n- **400 Bad Request**: Missing `address`, `chainId`, or `rpcUrl`.\n- **401 Unauthorized**: Missing or invalid Developer API key.\n- **429 Too Many Requests**: Rate limit quota exceeded.",
+        "operationId": "getWalletBalance",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletBalanceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Formatted balance response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletBalanceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitError"
+          }
+        }
+      }
+    },
+    "/api/public/swap/dexes": {
+      "get": {
+        "tags": [
+          "Swap Engine"
+        ],
+        "summary": "List Supported DEX Routers",
+        "description": "Returns the active catalog of DEX routers, factory contracts, quoter addresses, and token contracts supported by the Tower Swap Engine on Arc (Synthra, UnitFlow, Tower DEX).\n\n**Authentication:** Required (`Bearer <API_KEY>` or `x-api-key: <API_KEY>`)\n\n#### Request Parameters\nNone (GET request without query parameters).\n\n#### Request Body\nNone.\n\n#### Response Body Example\n```json\n{\n  \"success\": true, // Operation status flag\n  \"data\": [\n    {\n      \"id\": \"synthra\", // Unique router identifier\n      \"name\": \"Synthra\", // Display name of the decentralized exchange\n      \"routerAddress\": \"0xA545bCB1Bd7985c59ea162aB1748A0803434C31b\", // Router contract address on Arc\n      \"factoryAddress\": \"0x0fB6EEDA6e90E90797083861A75D15752a27f59c\", // Factory contract address\n      \"quoterAddress\": \"0x3Ce954107b1A675826B33bF23060Dd655e3758fE\", // Quoter contract address\n      \"type\": \"v3\", // AMM protocol architecture\n      \"chainId\": 5042002, // Arc network chain ID\n      \"enabled\": true, // Operational availability status\n      \"supportedTokens\": [\n        \"0x3600000000000000000000000000000000000000\",\n        \"0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a\"\n      ]\n    }\n  ]\n}\n```\n\n#### cURL Example\n```bash\ncurl -X GET \"https://www.tower.exchange/api/public/swap/dexes\" \\\n  -H \"Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\"\n```\n\n#### Common Error Responses\n- **401 Unauthorized**: Missing or invalid Developer API key.\n- **429 Too Many Requests**: Rate limit quota exceeded.",
+        "operationId": "getSwapDexes",
+        "responses": {
+          "200": {
+            "description": "List of active DEX router configurations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SwapDexesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitError"
+          }
+        }
+      }
+    },
+    "/api/public/swap/quote": {
+      "post": {
+        "tags": [
+          "Swap Engine"
+        ],
+        "summary": "Get Optimal Swap Quote",
+        "description": "Queries liquidity across all connected DEXes on Arc simultaneously to return the optimal execution path, estimated output amount, price impact, and fee breakdown.\n\n**Authentication:** Required (`Bearer <API_KEY>` or `x-api-key: <API_KEY>`)  \n**Scope Required:** `swaps`  \n**Compute Units:** `2 CU`\n\n#### Request Parameters\n\n| Name | Type | Required | Description |\n| :--- | :--- | :--- | :--- |\n| `inputToken` | string | Required | Symbol or contract address of input asset (e.g. `USDC` or `0x3600000000000000000000000000000000000000`). |\n| `outputToken` | string | Required | Symbol or contract address of desired output asset (e.g. `EURC` or `0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a`). |\n| `inputAmount` | string | Required | Raw input amount in token base atomic units (e.g. `100000000` for 100 USDC with 6 decimals). |\n| `slippageTolerance` | number | Optional | Maximum acceptable slippage in basis points (default is `50` for 0.5%). |\n| `dexId` | string | Optional | Target a specific DEX venue (`synthra`, `unitflow`, or `tower-dex`). Omit to route across all DEXes for best price. |\n\n#### Request Body Example\n```json\n{\n  \"inputToken\": \"USDC\",\n  \"outputToken\": \"EURC\",\n  \"inputAmount\": \"100000000\",\n  \"slippageTolerance\": 50\n}\n```\n\n#### Response Body Example\n```json\n{\n  \"success\": true, // Indicates successful quote calculation\n  \"data\": {\n    \"inputToken\": \"0x3600000000000000000000000000000000000000\", // Smart contract address of sold token\n    \"outputToken\": \"0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a\", // Smart contract address of bought token\n    \"inputAmount\": \"100000000\", // Input volume in atomic units (6 decimals for 100 USDC)\n    \"outputAmount\": \"92450000000000000000\", // Estimated output in 18-decimal normalized units (92.45 EURC)\n    \"minOut\": \"91987750000000000000\", // Minimum guaranteed output based on slippage tolerance\n    \"priceImpact\": 0.02, // Percentage price impact on the liquidity pool\n    \"gasEstimate\": \"200000\", // Estimated gas units for transaction execution\n    \"feeBps\": 25, // Total liquidity provider and protocol fee in basis points\n    \"platformFeeAmount\": \"250000000000000\", // Protocol fee component in atomic units\n    \"dexId\": \"tower-dex\", // Identifier of DEX router offering optimal price\n    \"dexName\": \"Tower\", // Display name of optimal DEX router\n    \"route\": { // Optimal routing path structure\n      \"type\": \"single\",\n      \"hops\": [\n        {\n          \"dexId\": \"tower-dex\",\n          \"amountIn\": \"100000000\",\n          \"amountOut\": \"92450000000000000000\",\n          \"priceImpact\": 0.02\n        }\n      ]\n    },\n    \"routeOptions\": [] // Candidate routes across competing DEX pools\n  }\n}\n```\n\n#### cURL Example\n```bash\ncurl -X POST \"https://www.tower.exchange/api/public/swap/quote\" \\\n  -H \"Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"inputToken\": \"USDC\",\n    \"outputToken\": \"EURC\",\n    \"inputAmount\": \"100000000\",\n    \"slippageTolerance\": 50\n  }'\n```\n\n#### Common Error Responses\n- **400 Bad Request**: Missing `inputToken`, `outputToken`, or `inputAmount`, or invalid token symbol.\n- **401 Unauthorized**: Missing or invalid Developer API key.\n- **403 Forbidden**: API key lacks the `swaps` scope.\n- **404 Not Found**: No valid route found or insufficient liquidity for trade size.\n- **429 Too Many Requests**: Rate limit quota exceeded.",
+        "operationId": "getSwapQuote",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwapQuoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Optimal swap quote and route details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SwapQuoteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ScopeForbiddenError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitError"
+          }
+        }
+      }
+    },
+    "/api/public/swap/build-tx": {
+      "post": {
+        "tags": [
+          "Swap Engine"
+        ],
+        "summary": "Build Unsigned Swap Transaction",
+        "description": "Constructs transaction calldata (to, data, value, gasLimit) for ERC-20 token approval and atomic swap execution via the `TowerSwapExecutor` contract on Arc.\n\n**Authentication:** Required (`Bearer <API_KEY>` or `x-api-key: <API_KEY>`)  \n**Scope Required:** `swaps`  \n**Compute Units:** `3 CU`\n\n#### Request Parameters\n\n| Name | Type | Required | Description |\n| :--- | :--- | :--- | :--- |\n| `quote` | object | Required | The complete quote payload returned from `POST /api/public/swap/quote`. |\n| `userAddress` | string | Required | The EVM or Arc wallet address executing the swap. |\n\n#### Request Body Example\n```json\n{\n  \"quote\": {\n    \"inputToken\": \"0x3600000000000000000000000000000000000000\",\n    \"outputToken\": \"0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a\",\n    \"inputAmount\": \"100000000\",\n    \"outputAmount\": \"92450000000000000000\",\n    \"dexId\": \"tower-dex\"\n  },\n  \"userAddress\": \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\"\n}\n```\n\n#### Response Body Example\n```json\n{\n  \"success\": true, // Operation status indicator\n  \"data\": {\n    \"approval\": { // ERC-20 approval transaction payload (null if already approved)\n      \"to\": \"0x3600000000000000000000000000000000000000\", // Token contract address being approved\n      \"data\": \"0x095ea7b30000000000000000000000002de8906a641d65d490bc60a4179d961d59742bcb0000000000000000000000000000000000000000000000000000000005f5e100\", // Calldata for approve(spender, amount)\n      \"from\": \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\", // Sender wallet address\n      \"gasLimit\": \"100000\" // Estimated gas limit for approval\n    },\n    \"swap\": { // Main swap execution transaction payload\n      \"to\": \"0x2De8906a641d65d490bC60A4179d961d59742bCb\", // TowerSwapExecutor contract address on Arc\n      \"data\": \"0xcd6267d50000000000000000000000003600000000000000000000000000000000000000\", // ABI-encoded swap calldata\n      \"value\": \"0\", // Native value in wei (0 for token swaps)\n      \"from\": \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\", // Sender wallet address\n      \"gasLimit\": \"500000\", // Estimated gas limit for swap execution\n      \"chainId\": 5042002 // Arc network EVM chain identifier\n    }\n  }\n}\n```\n\n#### cURL Example\n```bash\ncurl -X POST \"https://www.tower.exchange/api/public/swap/build-tx\" \\\n  -H \"Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"quote\": {\n      \"inputToken\": \"0x3600000000000000000000000000000000000000\",\n      \"outputToken\": \"0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a\",\n      \"inputAmount\": \"100000000\",\n      \"outputAmount\": \"92450000000000000000\",\n      \"dexId\": \"tower-dex\"\n    },\n    \"userAddress\": \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\"\n  }'\n```\n\n#### Common Error Responses\n- **400 Bad Request**: Missing `quote` or `userAddress` in payload.\n- **401 Unauthorized**: Missing or invalid Developer API key.\n- **403 Forbidden**: API key lacks the `swaps` scope.\n- **429 Too Many Requests**: Rate limit quota exceeded.",
+        "operationId": "buildSwapTx",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwapBuildTxRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Unsigned transaction payloads ready for wallet signing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SwapBuildTxResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ScopeForbiddenError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitError"
+          }
+        }
+      }
+    },
+    "/api/public/rpc/{chainId}": {
+      "post": {
+        "tags": [
+          "Node RPC"
+        ],
+        "summary": "Proxy JSON-RPC Node",
+        "description": "Proxies standard JSON-RPC requests (e.g. eth_sendRawTransaction, eth_blockNumber, eth_getTransactionReceipt) directly to underlying blockchain nodes with automatic upstream health checks and fallback rotation.\n\n**Authentication:** Required (`Bearer <API_KEY>` or `x-api-key: <API_KEY>`)  \n**Compute Units:** `1 CU`\n\n#### Request Parameters\n\n| Name | In | Type | Required | Description |\n| :--- | :--- | :--- | :--- | :--- |\n| `chainId` | path | string | Required | EVM chain ID (e.g. `5042002` for Arc Testnet, `84532` for Base Sepolia, `421614` for Arbitrum Sepolia, `1` for Ethereum, or `solana`). |\n\n#### Request Body Example\n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"eth_blockNumber\",\n  \"params\": [],\n  \"id\": 1\n}\n```\n\n#### Response Body Example\n```json\n{\n  \"jsonrpc\": \"2.0\", // JSON-RPC specification version\n  \"id\": 1, // Request identifier echo\n  \"result\": \"0x119ffe47\" // Hexadecimal block number response\n}\n```\n\n#### cURL Example\n```bash\ncurl -X POST \"https://www.tower.exchange/api/public/rpc/5042002\" \\\n  -H \"Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"eth_blockNumber\",\n    \"params\": [],\n    \"id\": 1\n  }'\n```\n\n#### Common Error Responses\n- **400 Bad Request**: Unsupported RPC chain ID or invalid JSON-RPC format.\n- **401 Unauthorized**: Missing or invalid Developer API key.\n- **429 Too Many Requests**: Rate limit quota exceeded.\n- **502 Bad Gateway**: Upstream RPC nodes failed to respond.",
+        "operationId": "proxyJsonRpc",
+        "parameters": [
+          {
+            "name": "chainId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "5042002"
+            },
+            "description": "EVM Chain ID (e.g. 5042002 for Arc Testnet, 84532 for Base Sepolia, 421614 for Arbitrum Sepolia, 1 for Ethereum Mainnet, or solana)"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JsonRpcRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Standard JSON-RPC response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JsonRpcResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitError"
+          },
+          "502": {
+            "$ref": "#/components/responses/UpstreamServiceError"
+          }
+        }
+      }
+    },
+    "/api/public/bridge": {
+      "post": {
+        "tags": [
+          "Cross-Chain Bridge"
+        ],
+        "summary": "Initiate Cross-Chain Bridge",
+        "description": "Executes cross-chain CCTP USDC token transfers across supported chains (Arc Testnet, Base Sepolia, Arbitrum Sepolia, Optimism Sepolia, Avalanche Fuji, Ethereum Sepolia, Linea Sepolia, Polygon Amoy, Sonic Testnet, Unichain Sepolia, and Solana) using Circle BridgeKit.\n\n**Authentication:** Required (`Bearer <API_KEY>` or `x-api-key: <API_KEY>`)  \n**Scope Required:** `bridges`  \n**Compute Units:** `5 CU`\n\n#### Request Parameters\n\n| Name | Type | Required | Description |\n| :--- | :--- | :--- | :--- |\n| `fromChainId` | integer | Required | Source network chain ID (e.g. `5042002` for Arc Testnet). |\n| `toChainId` | integer | Required | Destination network chain ID (e.g. `84532` for Base Sepolia). |\n| `amount` | string | Required | Decimal formatted transfer amount (e.g. `\"10.00\"`). |\n| `token` | string | Required | Token symbol to bridge (must be `\"USDC\"`). |\n| `recipientAddress` | string | Required | Target wallet address on destination network. |\n| `senderAddress` | string | Optional | Sender wallet address on source network. |\n| `useForwarder` | boolean | Optional | Use Circle CCTP forwarder contract for destination gas abstraction (default `true`). |\n\n#### Request Body Example\n```json\n{\n  \"fromChainId\": 5042002,\n  \"toChainId\": 84532,\n  \"amount\": \"10.00\",\n  \"token\": \"USDC\",\n  \"recipientAddress\": \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\",\n  \"senderAddress\": \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\",\n  \"useForwarder\": true\n}\n```\n\n#### Response Body Example\n```json\n{\n  \"success\": true, // Operation status indicator\n  \"transactionHash\": \"0x4e66c9f7a8b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7\", // Source chain transaction hash\n  \"status\": \"pending\", // Bridge settlement lifecycle status\n  \"estimatedTime\": \"2-5 minutes\" // Expected duration until funds mint on destination chain\n}\n```\n\n#### cURL Example\n```bash\ncurl -X POST \"https://www.tower.exchange/api/public/bridge\" \\\n  -H \"Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"fromChainId\": 5042002,\n    \"toChainId\": 84532,\n    \"amount\": \"10.00\",\n    \"token\": \"USDC\",\n    \"recipientAddress\": \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\",\n    \"senderAddress\": \"0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb\",\n    \"useForwarder\": true\n  }'\n```\n\n#### Common Error Responses\n- **400 Bad Request**: Missing required parameters, unsupported chain, or unsupported token.\n- **401 Unauthorized**: Missing or invalid Developer API key.\n- **403 Forbidden**: API key lacks the `bridges` scope.\n- **429 Too Many Requests**: Rate limit quota exceeded.\n- **500 Internal Server Error**: BridgeKit execution failure on source node.",
+        "operationId": "bridgeToken",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BridgeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bridge transaction initialization result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BridgeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ScopeForbiddenError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimitError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API Key",
+        "description": "Authenticate via HTTP Authorization Bearer header: Authorization: Bearer sk_live_9f83a2d1e0c4b5a67890123456789abcdef0"
+      },
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Authenticate via custom API Key header: x-api-key: sk_live_9f83a2d1e0c4b5a67890123456789abcdef0"
+      }
+    },
+    "schemas": {
+      "TokensResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "symbol": {
+                  "type": "string",
+                  "example": "USDC"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "USD Coin"
+                },
+                "decimals": {
+                  "type": "integer",
+                  "example": 6
+                },
+                "address": {
+                  "type": "string",
+                  "example": "0x3600000000000000000000000000000000000000"
+                },
+                "isNativeGas": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "chainId": {
+                  "type": "integer",
+                  "example": 5042002
+                },
+                "chainKey": {
+                  "type": "string",
+                  "example": "arc-testnet"
+                },
+                "bridgeAddresses": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ChainsResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "chainId": {
+                  "type": "string",
+                  "example": "5042002"
+                },
+                "numericId": {
+                  "type": "integer",
+                  "nullable": true,
+                  "example": 5042002
+                },
+                "name": {
+                  "type": "string",
+                  "example": "Arc Testnet"
+                },
+                "key": {
+                  "type": "string",
+                  "example": "arc-testnet"
+                },
+                "type": {
+                  "type": "string",
+                  "example": "evm"
+                },
+                "nativeCurrency": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "example": "USD Coin"
+                    },
+                    "symbol": {
+                      "type": "string",
+                      "example": "USDC"
+                    },
+                    "decimals": {
+                      "type": "integer",
+                      "example": 18
+                    }
+                  }
+                },
+                "rpcUrl": {
+                  "type": "string",
+                  "example": "https://rpc.testnet.arc.network"
+                },
+                "explorerUrl": {
+                  "type": "string",
+                  "example": "https://testnet.arcscan.app"
+                },
+                "supportedFeatures": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "example": [
+                    "swaps",
+                    "bridge",
+                    "rpc-proxy",
+                    "wallet-balance"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "TokenPricesResponse": {
+        "type": "object",
+        "properties": {
+          "usd-coin": {
+            "type": "object",
+            "description": "USDC spot rate",
+            "properties": {
+              "usd": {
+                "type": "number",
+                "example": 1
+              }
+            }
+          },
+          "eurc": {
+            "type": "object",
+            "description": "EURC spot rate",
+            "properties": {
+              "usd": {
+                "type": "number",
+                "example": 1.082
+              }
+            }
+          },
+          "tether": {
+            "type": "object",
+            "description": "USDT spot rate",
+            "properties": {
+              "usd": {
+                "type": "number",
+                "example": 1.001
+              }
+            }
+          }
+        }
+      },
+      "WalletBalanceRequest": {
+        "type": "object",
+        "required": [
+          "address",
+          "chainId",
+          "rpcUrl"
+        ],
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "Wallet address (0x EVM or base58 Solana)",
+            "example": "0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb"
+          },
+          "chainId": {
+            "type": "string",
+            "description": "Chain identifier (e.g. 'arc-testnet', 'base-sepolia', 'arbitrum-sepolia', 'solana')",
+            "example": "arc-testnet"
+          },
+          "rpcUrl": {
+            "type": "string",
+            "description": "RPC node URL used to read on-chain state",
+            "example": "https://rpc.testnet.arc.network"
+          },
+          "tokenAddress": {
+            "type": "string",
+            "description": "Contract address of the token (ignored if balanceType is 'native')",
+            "example": "0x3600000000000000000000000000000000000000"
+          },
+          "balanceType": {
+            "type": "string",
+            "enum": [
+              "token",
+              "native"
+            ],
+            "default": "token",
+            "description": "'token' queries ERC20/SPL balanceOf; 'native' queries eth_getBalance"
+          }
+        }
+      },
+      "WalletBalanceResponse": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "string",
+            "description": "Decimal-normalized token balance formatted as a string",
+            "example": "100.500000"
+          }
+        }
+      },
+      "SwapDexesResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "synthra"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "Synthra"
+                },
+                "routerAddress": {
+                  "type": "string",
+                  "example": "0xA545bCB1Bd7985c59ea162aB1748A0803434C31b"
+                },
+                "factoryAddress": {
+                  "type": "string",
+                  "example": "0x0fB6EEDA6e90E90797083861A75D15752a27f59c"
+                },
+                "quoterAddress": {
+                  "type": "string",
+                  "example": "0x3Ce954107b1A675826B33bF23060Dd655e3758fE"
+                },
+                "type": {
+                  "type": "string",
+                  "example": "v3"
+                },
+                "chainId": {
+                  "type": "integer",
+                  "example": 5042002
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "supportedTokens": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "SwapQuoteRequest": {
+        "type": "object",
+        "required": [
+          "inputToken",
+          "outputToken",
+          "inputAmount"
+        ],
+        "properties": {
+          "inputToken": {
+            "type": "string",
+            "description": "Symbol or contract address of input asset (e.g. 'USDC')",
+            "example": "USDC"
+          },
+          "outputToken": {
+            "type": "string",
+            "description": "Symbol or contract address of desired output asset (e.g. 'EURC')",
+            "example": "EURC"
+          },
+          "inputAmount": {
+            "type": "string",
+            "description": "Raw input amount in token base atomic units",
+            "example": "100000000"
+          },
+          "slippageTolerance": {
+            "type": "number",
+            "description": "Max slippage in basis points (50 = 0.5%)",
+            "default": 50,
+            "example": 50
+          },
+          "dexId": {
+            "type": "string",
+            "description": "Optional: force a specific DEX ('synthra', 'unitflow', 'tower-dex'). Omit for best route.",
+            "example": "tower-dex"
+          }
+        }
+      },
+      "SwapQuoteResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "inputToken": {
+                "type": "string",
+                "example": "0x3600000000000000000000000000000000000000"
+              },
+              "outputToken": {
+                "type": "string",
+                "example": "0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a"
+              },
+              "inputAmount": {
+                "type": "string",
+                "example": "100000000"
+              },
+              "outputAmount": {
+                "type": "string",
+                "example": "92450000000000000000"
+              },
+              "minOut": {
+                "type": "string",
+                "example": "91987750000000000000"
+              },
+              "priceImpact": {
+                "type": "number",
+                "example": 0.02
+              },
+              "gasEstimate": {
+                "type": "string",
+                "example": "200000"
+              },
+              "feeBps": {
+                "type": "number",
+                "example": 25
+              },
+              "platformFeeAmount": {
+                "type": "string",
+                "example": "250000000000000"
+              },
+              "dexId": {
+                "type": "string",
+                "example": "tower-dex"
+              },
+              "dexName": {
+                "type": "string",
+                "example": "Tower"
+              },
+              "route": {
+                "type": "object"
+              },
+              "routeOptions": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "SwapBuildTxRequest": {
+        "type": "object",
+        "required": [
+          "quote",
+          "userAddress"
+        ],
+        "properties": {
+          "quote": {
+            "type": "object",
+            "description": "The exact quote payload returned from POST /api/public/swap/quote"
+          },
+          "userAddress": {
+            "type": "string",
+            "description": "The Ethereum or Arc wallet address executing the swap",
+            "example": "0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb"
+          }
+        }
+      },
+      "SwapBuildTxResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "approval": {
+                "type": "object",
+                "nullable": true,
+                "description": "ERC-20 approve transaction payload if allowance is required",
+                "properties": {
+                  "to": {
+                    "type": "string",
+                    "example": "0x3600000000000000000000000000000000000000"
+                  },
+                  "data": {
+                    "type": "string",
+                    "example": "0x095ea7b30000000000000000000000002de8906a641d65d490bc60a4179d961d59742bcb0000000000000000000000000000000000000000000000000000000005f5e100"
+                  },
+                  "from": {
+                    "type": "string",
+                    "example": "0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb"
+                  },
+                  "gasLimit": {
+                    "type": "string",
+                    "example": "100000"
+                  }
+                }
+              },
+              "swap": {
+                "type": "object",
+                "description": "Main swap execution payload for TowerSwapExecutor",
+                "properties": {
+                  "to": {
+                    "type": "string",
+                    "example": "0x2De8906a641d65d490bC60A4179d961d59742bCb"
+                  },
+                  "data": {
+                    "type": "string",
+                    "example": "0xcd6267d50000000000000000000000003600000000000000000000000000000000000000"
+                  },
+                  "value": {
+                    "type": "string",
+                    "example": "0"
+                  },
+                  "from": {
+                    "type": "string",
+                    "example": "0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb"
+                  },
+                  "gasLimit": {
+                    "type": "string",
+                    "example": "500000"
+                  },
+                  "chainId": {
+                    "type": "integer",
+                    "example": 5042002
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "JsonRpcRequest": {
+        "type": "object",
+        "required": [
+          "jsonrpc",
+          "method",
+          "params",
+          "id"
+        ],
+        "properties": {
+          "jsonrpc": {
+            "type": "string",
+            "example": "2.0"
+          },
+          "method": {
+            "type": "string",
+            "example": "eth_blockNumber"
+          },
+          "params": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": []
+          },
+          "id": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "JsonRpcResponse": {
+        "type": "object",
+        "properties": {
+          "jsonrpc": {
+            "type": "string",
+            "example": "2.0"
+          },
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "result": {
+            "description": "RPC result payload",
+            "example": "0x119ffe47"
+          }
+        }
+      },
+      "BridgeRequest": {
+        "type": "object",
+        "required": [
+          "fromChainId",
+          "toChainId",
+          "amount",
+          "token",
+          "recipientAddress"
+        ],
+        "properties": {
+          "fromChainId": {
+            "type": "integer",
+            "description": "Source chain ID (e.g. 5042002 for Arc Testnet)",
+            "example": 5042002
+          },
+          "toChainId": {
+            "type": "integer",
+            "description": "Destination chain ID (e.g. 84532 for Base Sepolia)",
+            "example": 84532
+          },
+          "amount": {
+            "type": "string",
+            "description": "Amount of token to bridge (decimal formatted)",
+            "example": "10.00"
+          },
+          "token": {
+            "type": "string",
+            "description": "Token symbol (must be 'USDC')",
+            "default": "USDC",
+            "example": "USDC"
+          },
+          "recipientAddress": {
+            "type": "string",
+            "description": "Target address on the destination chain",
+            "example": "0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb"
+          },
+          "senderAddress": {
+            "type": "string",
+            "description": "Sender address on source chain",
+            "example": "0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb"
+          },
+          "useForwarder": {
+            "type": "boolean",
+            "default": true,
+            "description": "Use Circle CCTP forwarder contract for destination gas abstraction"
+          }
+        }
+      },
+      "BridgeResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "transactionHash": {
+            "type": "string",
+            "description": "Source chain transaction hash",
+            "example": "0x4e66c9f7a8b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7"
+          },
+          "status": {
+            "type": "string",
+            "example": "pending"
+          },
+          "estimatedTime": {
+            "type": "string",
+            "example": "2-5 minutes"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "example": "Error message describing the failure condition"
+          },
+          "status": {
+            "type": "integer",
+            "example": 400
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequestError": {
+        "description": "Bad Request: Invalid or missing parameters in the request payload.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "error": "Missing required fields: inputToken, outputToken, or inputAmount"
+            }
+          }
+        }
+      },
+      "UnauthorizedError": {
+        "description": "Unauthorized: Missing, invalid, or revoked Developer API Key.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "error": "Invalid API key"
+            }
+          }
+        }
+      },
+      "ScopeForbiddenError": {
+        "description": "Forbidden: API Key lacks the scope required to access this endpoint.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "error": "Scope 'swaps' is required for this endpoint. Granted scopes: quotes, read."
+            }
+          }
+        }
+      },
+      "NotFoundError": {
+        "description": "Not Found: The requested resource, route, or liquidity path was not found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "error": "No valid route found"
+            }
+          }
+        }
+      },
+      "RateLimitError": {
+        "description": "Too Many Requests: Rate limit threshold or monthly compute unit quota exceeded.",
+        "headers": {
+          "Retry-After": {
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Seconds until the rate limit window resets"
+          },
+          "X-RateLimit-Limit": {
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Allowed requests per minute window"
+          },
+          "X-RateLimit-Remaining": {
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Requests remaining in the active window"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "error": "API key rate limit of 60 requests/minute exceeded."
+            }
+          }
+        }
+      },
+      "UpstreamServiceError": {
+        "description": "Bad Gateway: Failed to communicate with upstream blockchain RPC node or pricing provider.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "success": false,
+              "error": "Failed to reach upstream RPC endpoint"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -29,7 +29,7 @@ layout:
 
 # Welcome to Tower
 
-### The Native Stablecoin DEX Aggregator On ARC
+### The Native Stablecoin DEX Aggregator On Arc
 
 Start trading at [Tower Exchange](https://www.tower.exchange/)
 

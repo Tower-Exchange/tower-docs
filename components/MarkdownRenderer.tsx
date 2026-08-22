@@ -85,7 +85,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           ),
           li: ({ children }) => <li className="leading-relaxed">{children}</li>,
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-[#70B2FF] bg-[#F8F9FA] pl-4 py-2.5 my-6 text-slate-700 italic rounded-r-2xl border-t border-b border-r border-slate-100">
+            <blockquote className="border-l-4 border-[#70B2FF] bg-[#F8F9FA] pl-4 py-2.5 my-6 text-slate-700 italic rounded-r-2xl border-t border-b border-r border-slate-100 [&_p]:my-0 [&_p+p]:mt-2">
               {children}
             </blockquote>
           ),
@@ -150,9 +150,9 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
               }
 
               return (
-                <div className={`my-6 p-4 rounded-2xl border flex items-start gap-3.5 text-xs sm:text-sm font-medium leading-relaxed shadow-2xs ${borderClass}`}>
+                <div className={`my-6 p-4 rounded-2xl border flex items-start gap-3.5 text-xs sm:text-sm font-medium leading-relaxed shadow-2xs ${borderClass} [&_p]:my-0 [&_p+p]:mt-2`}>
                   {icon}
-                  <div className="flex-1">{children}</div>
+                  <div className="flex-1 min-w-0">{children}</div>
                 </div>
               );
             }

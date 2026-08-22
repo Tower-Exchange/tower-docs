@@ -10,7 +10,6 @@
 * [Recurring Orders](getting-started/recurring-orders.md)
 * [Tower AI Assistant](getting-started/tower-ai-assistant.md)
 * [Tower DEX Integrations](getting-started/tower-dex-integrations.md)
-* [Bell Points](getting-started/bell-points.md)
 
 ## FUNDAMENTALS
 

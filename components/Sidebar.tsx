@@ -36,11 +36,11 @@ export default function Sidebar({ sections, isOpen, onClose }: SidebarProps) {
 
   const getSectionIcon = (title: string) => {
     const t = title.toLowerCase();
-    if (t.includes("getting started")) return <Compass className="w-4 h-4 text-[#3B82F6]" />;
-    if (t.includes("fundamental")) return <Layers className="w-4 h-4 text-indigo-600" />;
-    if (t.includes("developer console")) return <Terminal className="w-4 h-4 text-emerald-600" />;
-    if (t.includes("api reference")) return <Code2 className="w-4 h-4 text-cyan-600" />;
-    return <BookOpen className="w-4 h-4 text-slate-500" />;
+    if (t.includes("getting started")) return <Compass className="w-4 h-4 text-[#70b2ff]" />;
+    if (t.includes("fundamental")) return <Layers className="w-4 h-4 text-[#70b2ff]" />;
+    if (t.includes("developer console")) return <Terminal className="w-4 h-4 text-[#70b2ff]" />;
+    if (t.includes("api reference")) return <Code2 className="w-4 h-4 text-[#70b2ff]" />;
+    return <BookOpen className="w-4 h-4 text-[#70b2ff]" />;
   };
 
   return (
