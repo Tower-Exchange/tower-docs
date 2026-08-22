@@ -59,7 +59,7 @@ export default function Header({ onOpenSearch, onToggleSidebar, isSidebarOpen }:
         {/* Right Section: Developer Console Link (Hidden on mobile, visible sm and up) */}
         <div className="hidden sm:flex items-center shrink-0">
           <a
-            href="http://localhost:3000"
+            href="https://devs.tower.exchange"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#70B2FF] hover:bg-[#58A1F8] text-slate-900 font-semibold transition-all duration-150 hover:scale-[1.02] active:scale-[0.98] shadow-xs cursor-pointer text-xs sm:text-sm"

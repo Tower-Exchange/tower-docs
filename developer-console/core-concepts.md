@@ -32,17 +32,6 @@ Understanding these core concepts ensures reliable, efficient, and secure integr
 
 Smart routing is Tower's automated algorithmic engine that simultaneously scans and splits trade volume across all connected decentralized exchanges on Arc (including **Synthra**, **UnitFlow**, and **Tower DEX**).
 
-```mermaid
-flowchart LR
-    A[Order: 100,000 USDC] --> B[Tower Smart Router]
-    B -->|45% Volume| C[Synthra V3 Pool]
-    B -->|35% Volume| D[Tower DEX Pool]
-    B -->|20% Volume| E[UnitFlow Pool]
-    C --> F[Aggregated Payout in EURC]
-    D --> F
-    E --> F
-```
-
 #### Why Smart Routing Matters:
 * **Minimal Price Impact:** Distributes large orders across multiple pools to avoid draining liquidity in any single venue.
 * **Best Net Execution:** Evaluates protocol fees, pool depths, and estimated gas costs to guarantee the highest output amount.

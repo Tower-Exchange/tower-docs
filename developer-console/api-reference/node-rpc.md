@@ -86,7 +86,7 @@ Proxies standard JSON-RPC 2.0 requests (such as `eth_sendRawTransaction`, `eth_b
 
 #### cURL (Query Block Number)
 ```bash
-curl -X POST "https://tower-devapi.up.railway.app/api/public/rpc/5042002" \
+curl -X POST "https://www.tower.exchange/api/public/rpc/5042002" \
   -H "Authorization: Bearer sk_live_********************" \
   -H "Content-Type: application/json" \
   -d '{
@@ -99,7 +99,7 @@ curl -X POST "https://tower-devapi.up.railway.app/api/public/rpc/5042002" \
 
 #### cURL (Broadcast Signed Raw Transaction)
 ```bash
-curl -X POST "https://tower-devapi.up.railway.app/api/public/rpc/5042002" \
+curl -X POST "https://www.tower.exchange/api/public/rpc/5042002" \
   -H "Authorization: Bearer sk_live_********************" \
   -H "Content-Type: application/json" \
   -d '{
@@ -112,7 +112,7 @@ curl -X POST "https://tower-devapi.up.railway.app/api/public/rpc/5042002" \
 
 #### JavaScript (Fetch)
 ```javascript
-const response = await fetch("https://tower-devapi.up.railway.app/api/public/rpc/5042002", {
+const response = await fetch("https://www.tower.exchange/api/public/rpc/5042002", {
   method: "POST",
   headers: {
     "Authorization": "Bearer sk_live_********************",

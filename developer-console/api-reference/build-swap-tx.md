@@ -98,7 +98,7 @@ Constructs unsigned transaction calldata (`to`, `data`, `value`, `gasLimit`) for
 
 #### cURL
 ```bash
-curl -X POST "https://tower-devapi.up.railway.app/api/public/swap/build-tx" \
+curl -X POST "https://www.tower.exchange/api/public/swap/build-tx" \
   -H "Authorization: Bearer sk_live_********************" \
   -H "Content-Type: application/json" \
   -d '{
@@ -115,7 +115,7 @@ curl -X POST "https://tower-devapi.up.railway.app/api/public/swap/build-tx" \
 
 #### JavaScript (Fetch)
 ```javascript
-const response = await fetch("https://tower-devapi.up.railway.app/api/public/swap/build-tx", {
+const response = await fetch("https://www.tower.exchange/api/public/swap/build-tx", {
   method: "POST",
   headers: {
     "Authorization": "Bearer sk_live_********************",

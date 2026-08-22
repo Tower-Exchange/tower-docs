@@ -28,26 +28,6 @@ This guide walks you through executing a swap of **100 USDC to EURC** on the Arc
 
 ---
 
-### The 3-Step Swap Flow
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Dev as Your Application / Wallet
-    participant Tower as Tower Public API
-    participant Arc as Arc Blockchain Node
-    
-    Dev->>Tower: POST /api/public/swap/quote (inputToken, outputToken, amount)
-    Tower-->>Dev: Returns Optimal Quote & Route (dexName, outputAmount, minOut)
-    Dev->>Tower: POST /api/public/swap/build-tx (quote, userAddress)
-    Tower-->>Dev: Returns Unsigned Calldata (approval payload, swap payload)
-    Dev->>Dev: Signs Unsigned Calldata locally with Private Key
-    Dev->>Arc: Broadcasts Signed Transaction via /api/public/rpc/{chainId}
-    Arc-->>Dev: Transaction Confirmed on-chain
-```
-
----
-
 ### Step 1: Request a Swap Quote
 
 Send a `POST` request to `/api/public/swap/quote` with the input asset, output asset, input amount, and slippage tolerance. 
@@ -80,7 +60,7 @@ Your application signs the transaction payload using your private key or Web3 pr
 
 ```bash
 # Step 1: Request Quote for 100 USDC to EURC
-curl -X POST "https://tower-devapi.up.railway.app/api/public/swap/quote" \
+curl -X POST "https://www.tower.exchange/api/public/swap/quote" \
   -H "Authorization: Bearer sk_live_********************" \
   -H "Content-Type: application/json" \
   -d '{
@@ -91,7 +71,7 @@ curl -X POST "https://tower-devapi.up.railway.app/api/public/swap/quote" \
   }'
 
 # Step 2: Build the unsigned transaction payload
-curl -X POST "https://tower-devapi.up.railway.app/api/public/swap/build-tx" \
+curl -X POST "https://www.tower.exchange/api/public/swap/build-tx" \
   -H "Authorization: Bearer sk_live_********************" \
   -H "Content-Type: application/json" \
   -d '{
@@ -109,7 +89,7 @@ curl -X POST "https://tower-devapi.up.railway.app/api/public/swap/build-tx" \
   }'
 
 # Step 3: Broadcast signed raw transaction via RPC Proxy
-curl -X POST "https://tower-devapi.up.railway.app/api/public/rpc/5042002" \
+curl -X POST "https://www.tower.exchange/api/public/rpc/5042002" \
   -H "Authorization: Bearer sk_live_********************" \
   -H "Content-Type: application/json" \
   -d '{
@@ -126,7 +106,7 @@ curl -X POST "https://tower-devapi.up.railway.app/api/public/rpc/5042002" \
 
 ```javascript
 const API_KEY = "sk_live_********************";
-const BASE_URL = "https://tower-devapi.up.railway.app/api/public";
+const BASE_URL = "https://www.tower.exchange/api/public";
 const WALLET_ADDRESS = "0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb";
 
 async function executeSwap() {
@@ -187,7 +167,7 @@ executeSwap().catch(console.error);
 import requests
 
 API_KEY = "sk_live_********************"
-BASE_URL = "https://tower-devapi.up.railway.app/api/public"
+BASE_URL = "https://www.tower.exchange/api/public"
 WALLET_ADDRESS = "0xa54FFd258815Ee711bA0d3Dbb7fA786AEA6095Fb"
 
 headers = {

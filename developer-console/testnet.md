@@ -32,7 +32,7 @@ Tower provides a full testnet environment that mirrors the mainnet REST API arch
 
 | Environment | Base URL | Network / Chain ID | Notes |
 | :--- | :--- | :--- | :--- |
-| **Testnet Gateway** | `https://tower-devapi.up.railway.app/api/public` | Arc Testnet (`5042002`) | Live testing & staging sandbox. |
+| **Testnet Gateway** | `https://www.tower.exchange/api/public` | Arc Testnet (`5042002`) | Live testing & staging sandbox. |
 | **Production Mainnet** | `https://www.tower.exchange/api/public` | Arc Mainnet | Real asset settlements. |
 
 You can use the same API key on testnet as you do on mainnet. Testnet transactions execute entirely on the Arc Testnet and do not consume real-world capital.
@@ -67,7 +67,7 @@ To toggle between Testnet and Mainnet, simply update your base URL initializatio
 // Testnet Client
 const testnetClient = new TowerClient(
   process.env.TOWER_API_KEY!,
-  "https://tower-devapi.up.railway.app/api/public"
+  "https://www.tower.exchange/api/public"
 );
 
 // Production Mainnet Client

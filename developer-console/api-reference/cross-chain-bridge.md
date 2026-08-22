@@ -85,7 +85,7 @@ Executes 1:1 cross-chain USDC token transfers across connected EVM networks and 
 
 #### cURL
 ```bash
-curl -X POST "https://tower-devapi.up.railway.app/api/public/bridge" \
+curl -X POST "https://www.tower.exchange/api/public/bridge" \
   -H "Authorization: Bearer sk_live_********************" \
   -H "Content-Type: application/json" \
   -d '{
@@ -101,7 +101,7 @@ curl -X POST "https://tower-devapi.up.railway.app/api/public/bridge" \
 
 #### JavaScript (Fetch)
 ```javascript
-const response = await fetch("https://tower-devapi.up.railway.app/api/public/bridge", {
+const response = await fetch("https://www.tower.exchange/api/public/bridge", {
   method: "POST",
   headers: {
     "Authorization": "Bearer sk_live_********************",

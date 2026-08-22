@@ -35,7 +35,7 @@ export class TowerClient {
   private apiKey: string;
   private baseUrl: string;
 
-  constructor(apiKey: string, baseUrl: string = "https://tower-devapi.up.railway.app/api/public") {
+  constructor(apiKey: string, baseUrl: string = "https://www.tower.exchange/api/public") {
     this.apiKey = apiKey;
     this.baseUrl = baseUrl;
   }
@@ -184,7 +184,7 @@ run().catch(console.error);
 import requests
 
 class TowerClient:
-    def __init__(self, api_key: str, base_url: str = "https://tower-devapi.up.railway.app/api/public"):
+    def __init__(self, api_key: str, base_url: str = "https://www.tower.exchange/api/public"):
         self.api_key = api_key
         self.base_url = base_url
 

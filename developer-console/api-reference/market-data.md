@@ -83,13 +83,13 @@ This endpoint requires no query parameters or request body payload.
 
 #### cURL
 ```bash
-curl -X GET "https://tower-devapi.up.railway.app/api/public/prices" \
+curl -X GET "https://www.tower.exchange/api/public/prices" \
   -H "Authorization: Bearer sk_live_********************"
 ```
 
 #### JavaScript (Fetch)
 ```javascript
-const response = await fetch("https://tower-devapi.up.railway.app/api/public/prices", {
+const response = await fetch("https://www.tower.exchange/api/public/prices", {
   method: "GET",
   headers: {
     "Authorization": "Bearer sk_live_********************"
@@ -106,7 +106,7 @@ import requests
 headers = {
     "Authorization": "Bearer sk_live_********************"
 }
-response = requests.get("https://tower-devapi.up.railway.app/api/public/prices", headers=headers)
+response = requests.get("https://www.tower.exchange/api/public/prices", headers=headers)
 print(response.json())
 ```
 

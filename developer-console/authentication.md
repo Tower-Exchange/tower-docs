@@ -30,7 +30,7 @@ Tower Console uses API keys to authenticate and authorize all developer API requ
 
 ### Obtaining Your API Key
 
-1. Create a developer account at [Tower Developer Console](https://tower-devapi.up.railway.app/signup).
+1. Create a developer account at [Tower Developer Console](https://devs.tower.exchange).
 2. Sign in and navigate to the **API Keys** section in your dashboard.
 3. Click **Generate New Key** and select the appropriate environment and permission scopes (`quotes`, `swaps`, `bridges`, `read`).
 4. Copy the generated secret key. API keys follow the format:
@@ -65,13 +65,13 @@ All API communication requires **HTTPS**. The server automatically rejects unenc
 
 #### cURL
 ```bash
-curl -X GET "https://tower-devapi.up.railway.app/api/public/prices" \
+curl -X GET "https://www.tower.exchange/api/public/prices" \
   -H "Authorization: Bearer sk_live_********************"
 ```
 
 #### JavaScript (Fetch)
 ```javascript
-const response = await fetch("https://tower-devapi.up.railway.app/api/public/prices", {
+const response = await fetch("https://www.tower.exchange/api/public/prices", {
   method: "GET",
   headers: {
     "Authorization": "Bearer sk_live_********************",
@@ -92,7 +92,7 @@ headers = {
     "Content-Type": "application/json"
 }
 
-response = requests.get("https://tower-devapi.up.railway.app/api/public/prices", headers=headers)
+response = requests.get("https://www.tower.exchange/api/public/prices", headers=headers)
 print(response.json())
 ```
 

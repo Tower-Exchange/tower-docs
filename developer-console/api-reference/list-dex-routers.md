@@ -102,13 +102,13 @@ None.
 
 #### cURL
 ```bash
-curl -X GET "https://tower-devapi.up.railway.app/api/public/swap/dexes" \
+curl -X GET "https://www.tower.exchange/api/public/swap/dexes" \
   -H "Authorization: Bearer sk_live_********************"
 ```
 
 #### JavaScript (Fetch)
 ```javascript
-const response = await fetch("https://tower-devapi.up.railway.app/api/public/swap/dexes", {
+const response = await fetch("https://www.tower.exchange/api/public/swap/dexes", {
   method: "GET",
   headers: {
     "Authorization": "Bearer sk_live_********************"

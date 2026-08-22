@@ -78,7 +78,7 @@ Query the on-chain token balance (ERC-20 / SPL) or native gas asset balance for 
 
 #### cURL
 ```bash
-curl -X POST "https://tower-devapi.up.railway.app/api/public/wallet/balance" \
+curl -X POST "https://www.tower.exchange/api/public/wallet/balance" \
   -H "Authorization: Bearer sk_live_********************" \
   -H "Content-Type: application/json" \
   -d '{
@@ -92,7 +92,7 @@ curl -X POST "https://tower-devapi.up.railway.app/api/public/wallet/balance" \
 
 #### JavaScript (Fetch)
 ```javascript
-const response = await fetch("https://tower-devapi.up.railway.app/api/public/wallet/balance", {
+const response = await fetch("https://www.tower.exchange/api/public/wallet/balance", {
   method: "POST",
   headers: {
     "Authorization": "Bearer sk_live_********************",

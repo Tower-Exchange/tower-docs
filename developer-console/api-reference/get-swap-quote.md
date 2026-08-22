@@ -118,7 +118,7 @@ Queries liquidity across all connected decentralized exchanges on Arc simultaneo
 
 #### cURL
 ```bash
-curl -X POST "https://tower-devapi.up.railway.app/api/public/swap/quote" \
+curl -X POST "https://www.tower.exchange/api/public/swap/quote" \
   -H "Authorization: Bearer sk_live_********************" \
   -H "Content-Type: application/json" \
   -d '{
@@ -131,7 +131,7 @@ curl -X POST "https://tower-devapi.up.railway.app/api/public/swap/quote" \
 
 #### JavaScript (Fetch)
 ```javascript
-const response = await fetch("https://tower-devapi.up.railway.app/api/public/swap/quote", {
+const response = await fetch("https://www.tower.exchange/api/public/swap/quote", {
   method: "POST",
   headers: {
     "Authorization": "Bearer sk_live_********************",
