@@ -26,7 +26,7 @@ layout:
 
 Tower's AI assistant is a conversational interface built directly into the trading platform. It connects to on-chain data and translates it into plain-language insights. Instead of deciphering raw blockchain data manually, users can simply ask.
 
-<figure><img src="../.gitbook/assets/photo_2026-04-29_07-56-10.jpg" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/9.png" alt=""><figcaption></figcaption></figure>
 
 #### What Tower AI Does
 

@@ -37,7 +37,7 @@ To create a Recurring **Buy** Order, users specify:
 * **Frequency:** How often the order executes (e.g., hourly, daily, weekly).
 * **Duration:** How long the recurring order remains active, or whether it runs indefinitely.
 
-<figure><img src="../.gitbook/assets/Buy.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/6.png" alt=""><figcaption></figcaption></figure>
 
 
 
@@ -49,7 +49,7 @@ To create a Recurring **Sell** Order, users specify:
 * **Frequency:** How often the order executes (e.g., hourly, daily, weekly).
 * **Duration:** How long the recurring order remains active, or whether it runs indefinitely.
 
-<figure><img src="../.gitbook/assets/Sell.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/7.png" alt=""><figcaption></figcaption></figure>
 
 Once configured, Tower automatically executes each swap at the scheduled interval using the same smart routing engine that powers standard swaps. Every execution finds the best available route across all integrated Arc DEXs at that moment.
 
@@ -57,7 +57,7 @@ Once configured, Tower automatically executes each swap at the scheduled interva
 
 Active Recurring Orders can be viewed, or cancelled at any time from the '**View Orders**' panel. Users can click on any order to see more details.
 
-<figure><img src="../.gitbook/assets/Orders.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/8.png" alt=""><figcaption></figcaption></figure>
 
 {% hint style="info" %}
 Recurring Orders require sufficient input token balance in the connected wallet at the time of each scheduled execution. If the balance is insufficient, that execution will be skipped.

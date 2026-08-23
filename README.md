@@ -39,7 +39,7 @@ Tower Exchange is a DEX aggregator built on the Arc blockchain. It unifies liqui
 
 Decentralized finance on Arc is growing fast, but the trading experience remains fragmented. Multiple DEXs exist, yet there is no aggregation layer. Users are forced to manually hop between exchanges, compare prices, and hope they are getting a fair deal. The result is inefficiency, poor execution, and missed opportunities.
 
-#### How Tower Solves This.
+#### How Tower Solves This
 
 Tower aggregates liquidity across all Arc DEXs and calculates the best possible route for every trade. Users interact with a single interface and always receive the best available price.
 

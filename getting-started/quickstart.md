@@ -28,7 +28,7 @@ layout:
 
 Navigate to [Tower Exchange](https://www.tower.exchange/) and click the **Connect Wallet** button. Tower supports wallet connections through Rainbow offering a wide range of options including browser extension wallets and embedded wallets.
 
-<figure><img src="../.gitbook/assets/Screenshot 2026-04-29 063836.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/1.png" alt=""><figcaption></figcaption></figure>
 
 Once connected, users land on the main swap interface and can immediately begin trading.
 
@@ -56,7 +56,7 @@ Once satisfied with the quote, users click the **Swap** button. The wallet promp
 
 The trade executes on-chain, and the received tokens appear in the wallet once the transaction is confirmed. The entire process takes just seconds on Arc.
 
-<figure><img src="../.gitbook/assets/Screenshot 2026-05-17 133917.png" alt="" width="563"><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/2.png" alt="" width="563"><figcaption></figcaption></figure>
 
 {% hint style="info" %}
 If a swap fails, it is usually due to slippage: the price moved between confirmation and transaction landing. Adjusting slippage tolerance in the trade settings can help.

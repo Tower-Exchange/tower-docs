@@ -31,9 +31,9 @@ export default function Breadcrumbs({ slug, title }: BreadcrumbsProps) {
             {isLast ? (
               <span className="text-slate-900 font-bold truncate">{title}</span>
             ) : (
-              <Link href={`/${segmentSlug}`} className="hover:text-slate-900 transition-colors truncate">
+              <span className="hover:text-slate-900 transition-colors truncate">
                 {formattedName}
-              </Link>
+              </span>
             )}
           </React.Fragment>
         );

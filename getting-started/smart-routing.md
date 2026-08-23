@@ -37,6 +37,6 @@ For every trade, the routing engine considers:
 * **Slippage impact:** Large trades on shallow pools cause significant price movement. The router calculates the actual slippage for each possible path.
 * **Gas efficiency:** More complex routes (multi-hop, multi-pool) cost more gas. The router balances better pricing against higher transaction costs.
 
-<figure><img src="../.gitbook/assets/Screenshot 2026-05-17 134206.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/3.png" alt=""><figcaption></figcaption></figure>
 
 All of this happens in milliseconds. A trade is entered, and Tower returns the best price it found.
