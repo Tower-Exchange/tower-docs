@@ -68,9 +68,17 @@ Tower provides consistent API endpoints across mainnet and testnet environments:
 
 ---
 
+### Testing the APIs
+
+If you want to test the APIs interactively directly from your browser, visit [https://docs.tower.exchange/test-apis](https://docs.tower.exchange/test-apis).
+
+
+---
+
 ### Next Steps
 
 * [Authentication](authentication) — Learn how to obtain and pass API keys.
 * [Quickstart Guide](quickstart) — Execute your first swap quote and transaction build in 5 minutes.
 * [Core Concepts](core-concepts) — Understand smart routing, slippage, and calldata execution.
 * [API Reference](api-reference/market-data) — Explore the complete endpoint documentation.
+* [Interactive API Testing](https://docs.tower.exchange/test-apis) — Test endpoints directly in your browser.
