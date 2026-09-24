@@ -47,6 +47,7 @@ Queries liquidity across all connected decentralized exchanges on Arc simultaneo
 | `inputAmount` | string | **Required** | Raw input volume in base atomic units (e.g. `100000000` for 100 USDC with 6 decimals). |
 | `slippageTolerance` | number | Optional | Maximum acceptable slippage in basis points (default is `50` for 0.5%). |
 | `dexId` | string | Optional | Target a specific DEX venue (`synthra`, `unitflow`, or `tower-dex`). Omit to route across all pools for the best price. |
+| `chainId` | number | Optional | Target network EVM Chain ID (`5042` for Arc Mainnet [default], or `5042002` for Arc Testnet). |
 
 ---
 
@@ -57,7 +58,8 @@ Queries liquidity across all connected decentralized exchanges on Arc simultaneo
   "inputToken": "USDC",
   "outputToken": "EURC",
   "inputAmount": "100000000",
-  "slippageTolerance": 50
+  "slippageTolerance": 50,
+  "chainId": 5042
 }
 ```
 

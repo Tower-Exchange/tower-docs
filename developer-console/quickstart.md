@@ -67,7 +67,8 @@ curl -X POST "https://www.tower.exchange/api/public/swap/quote" \
     "inputToken": "USDC",
     "outputToken": "EURC",
     "inputAmount": "100000000",
-    "slippageTolerance": 50
+    "slippageTolerance": 50,
+    "chainId": 5042
   }'
 
 # Step 2: Build the unsigned transaction payload
