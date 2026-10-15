@@ -7,7 +7,7 @@
 * [Quickstart](getting-started/quickstart)
 * [Smart Routing](getting-started/smart-routing)
 * [Bridging](getting-started/bridging)
-* [Recurring Orders](getting-started/recurring-orders)
+<!-- * [Recurring Orders](getting-started/recurring-orders) -->
 * [Tower AI Assistant](getting-started/tower-ai-assistant)
 
 ## FUNDAMENTALS
