@@ -82,9 +82,24 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
               </h4>
             );
           },
-          p: ({ children }) => (
-            <p className="text-slate-600 font-medium leading-relaxed my-4 text-xs sm:text-sm">{children}</p>
-          ),
+          p: ({ children }) => {
+            const hasBlock = React.Children.toArray(children).some((child) => {
+              if (React.isValidElement(child)) {
+                const type = child.type;
+                if (typeof type === "string") {
+                  return ["img", "figure", "div", "video", "table", "blockquote"].includes(type.toLowerCase());
+                }
+                return true;
+              }
+              return false;
+            });
+
+            if (hasBlock) {
+              return <div className="text-slate-600 font-medium leading-relaxed my-4 text-xs sm:text-sm">{children}</div>;
+            }
+
+            return <p className="text-slate-600 font-medium leading-relaxed my-4 text-xs sm:text-sm">{children}</p>;
+          },
           ul: ({ children }) => (
             <ul className="list-disc list-outside pl-6 space-y-2 text-slate-600 font-medium text-xs sm:text-sm my-4">{children}</ul>
           ),
@@ -119,12 +134,22 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
               </a>
             );
           },
+          figure: ({ children, className, ...props }) => (
+            <div className={`my-6 ${className || ""}`} {...props}>
+              {children}
+            </div>
+          ),
+          figcaption: ({ children, className, ...props }) => (
+            <div className={`text-xs text-slate-500 text-center font-medium mt-2 ${className || ""}`} {...props}>
+              {children}
+            </div>
+          ),
           img: ({ src, alt, width, height, ...props }) => {
             if (!src) return null;
             const imageSrc = cleanAssetUrl(String(src));
             return (
-              <figure className="my-6">
-                <div 
+              <span className="block my-6">
+                <span 
                   className="relative inline-block max-w-full overflow-hidden rounded-2xl border border-slate-200/80 shadow-2xs hover:shadow-md transition-all duration-200 cursor-zoom-in group"
                   onClick={() => setActiveImage({ src: imageSrc, alt: alt ? String(alt) : undefined })}
                 >
@@ -133,37 +158,35 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
                     alt={alt || "Documentation image"}
                     className="w-full max-w-full h-auto rounded-2xl block transition-transform duration-200 group-hover:scale-[1.01] object-contain"
                   />
-                  <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors flex items-center justify-center">
+                  <span className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors flex items-center justify-center pointer-events-none">
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/80 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-xs flex items-center gap-1.5 shadow-md">
                       <Maximize2 className="w-3.5 h-3.5" />
                       Click to expand
                     </span>
-                  </div>
-                </div>
-                {alt && <figcaption className="text-xs text-slate-500 text-center font-medium mt-2">{alt}</figcaption>}
-              </figure>
+                  </span>
+                </span>
+                {alt && <span className="block text-xs text-slate-500 text-center font-medium mt-2">{alt}</span>}
+              </span>
             );
           },
           video: ({ node, src, poster, controls = true, children, className, ...props }) => {
             const videoSrc = src ? cleanAssetUrl(src) : undefined;
             const posterSrc = poster ? cleanAssetUrl(poster) : undefined;
             return (
-              <figure className="my-6">
-                <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-950 shadow-md">
-                  <video
-                    controls={controls}
-                    poster={posterSrc}
-                    src={videoSrc}
-                    playsInline
-                    preload="metadata"
-                    className={`w-full max-h-[520px] rounded-2xl bg-black block object-contain ${className || ""}`}
-                    {...props}
-                  >
-                    {children}
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
-              </figure>
+              <div className="my-6 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-950 shadow-md">
+                <video
+                  controls={controls}
+                  poster={posterSrc}
+                  src={videoSrc}
+                  playsInline
+                  preload="metadata"
+                  className={`w-full max-h-[520px] rounded-2xl bg-black block object-contain ${className || ""}`}
+                  {...props}
+                >
+                  {children}
+                  Your browser does not support the video tag.
+                </video>
+              </div>
             );
           },
           source: ({ node, src, type, ...props }) => {
