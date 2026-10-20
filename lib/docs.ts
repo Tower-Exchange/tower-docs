@@ -111,6 +111,9 @@ export function pathToSlug(relPath: string): string {
   if (slug === "README" || slug === "readme" || slug === "index") {
     return "";
   }
+  if (slug.endsWith("/README") || slug.endsWith("/readme") || slug.endsWith("/index")) {
+    return slug.replace(/\/(README|readme|index)$/, "");
+  }
   return slug;
 }
 
@@ -147,9 +150,13 @@ export function getDocPageBySlug(slugSegments: string[] = []): DocPageData | nul
   if (!fs.existsSync(fullPath)) {
     // Try index.md or README.md inside directory
     const altPath = path.join(DOCS_DIR, slugStr, "README.md");
+    const altIndexPath = path.join(DOCS_DIR, slugStr, "index.md");
     if (fs.existsSync(altPath)) {
       fullPath = altPath;
       relFilePath = `${slugStr}/README.md`;
+    } else if (fs.existsSync(altIndexPath)) {
+      fullPath = altIndexPath;
+      relFilePath = `${slugStr}/index.md`;
     } else {
       return null;
     }
@@ -169,11 +176,11 @@ export function getDocPageBySlug(slugSegments: string[] = []): DocPageData | nul
     }
   );
 
-  // Transform relative image paths starting with ../.gitbook/assets/ or .gitbook/assets/ to /.gitbook/assets/
-  processedContent = processedContent.replace(
-    /(\.\.\/)*\.gitbook\/assets\//g,
-    "/.gitbook/assets/"
-  );
+  // Transform relative/public image and video paths to /.gitbook/assets/
+  processedContent = processedContent
+    .replace(/\.gitbook\\assets\\/g, ".gitbook/assets/")
+    .replace(/(?:public\/)?(?:\.\.\/|\.\/)*\.gitbook\/assets\//g, "/.gitbook/assets/")
+    .replace(/\/{2,}\.gitbook\/assets\//g, "/.gitbook/assets/");
 
   // Extract headings for TOC
   const headings: TocHeading[] = [];

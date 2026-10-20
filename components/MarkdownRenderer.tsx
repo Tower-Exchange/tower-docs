@@ -8,6 +8,14 @@ import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
 import { Check, Copy, Info, AlertTriangle, Lightbulb, ExternalLink, X, Maximize2 } from "lucide-react";
 
+const cleanAssetUrl = (rawSrc?: string) => {
+  if (!rawSrc) return "";
+  let src = String(rawSrc).trim().replace(/\\/g, "/");
+  src = src.replace(/^\/{2,}/, "/");
+  src = src.replace(/^(?:public\/)?(?:\.\.\/|\.\/)*\.gitbook\/assets\//, "/.gitbook/assets/");
+  return src.replace(/^\/{2,}/, "/");
+};
+
 interface MarkdownRendererProps {
   content: string;
 }
@@ -113,7 +121,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           },
           img: ({ src, alt, width, height, ...props }) => {
             if (!src) return null;
-            const imageSrc = String(src);
+            const imageSrc = cleanAssetUrl(String(src));
             return (
               <figure className="my-6">
                 <div 
@@ -135,6 +143,32 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
                 {alt && <figcaption className="text-xs text-slate-500 text-center font-medium mt-2">{alt}</figcaption>}
               </figure>
             );
+          },
+          video: ({ node, src, poster, controls = true, children, className, ...props }) => {
+            const videoSrc = src ? cleanAssetUrl(src) : undefined;
+            const posterSrc = poster ? cleanAssetUrl(poster) : undefined;
+            return (
+              <figure className="my-6">
+                <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-950 shadow-md">
+                  <video
+                    controls={controls}
+                    poster={posterSrc}
+                    src={videoSrc}
+                    playsInline
+                    preload="metadata"
+                    className={`w-full max-h-[520px] rounded-2xl bg-black block object-contain ${className || ""}`}
+                    {...props}
+                  >
+                    {children}
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              </figure>
+            );
+          },
+          source: ({ node, src, type, ...props }) => {
+            const sourceSrc = src ? cleanAssetUrl(src) : undefined;
+            return <source src={sourceSrc} type={type} {...props} />;
           },
           div: ({ node, className, children, ...props }) => {
             if (className?.includes("gitbook-hint")) {

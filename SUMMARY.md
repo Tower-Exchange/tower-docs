@@ -10,6 +10,10 @@
 <!-- * [Recurring Orders](getting-started/recurring-orders) -->
 * [Tower AI Assistant](getting-started/tower-ai-assistant)
 
+## MCP
+
+* [Claude Connector](mcp)
+
 ## FUNDAMENTALS
 
 * [Architecture](fundamentals/architecture)
