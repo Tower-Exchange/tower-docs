@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Layers,
   Cpu,
+  Shield,
   X
 } from "lucide-react";
 
@@ -42,6 +43,7 @@ export default function Sidebar({ sections, isOpen, onClose }: SidebarProps) {
     if (t.includes("fundamental")) return <Layers className="w-4 h-4 text-[#70b2ff]" />;
     if (t.includes("developer console")) return <Terminal className="w-4 h-4 text-[#70b2ff]" />;
     if (t.includes("api reference")) return <Code2 className="w-4 h-4 text-[#70b2ff]" />;
+    if (t.includes("security") || t.includes("audit")) return <Shield className="w-4 h-4 text-[#70b2ff]" />;
     return <BookOpen className="w-4 h-4 text-[#70b2ff]" />;
   };
 

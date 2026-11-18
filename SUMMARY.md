@@ -19,7 +19,10 @@
 * [Architecture](fundamentals/architecture)
 * [What is a Swap](fundamentals/what-is-a-swap)
 * [DEX Aggregation](fundamentals/dex-aggregation)
-* [Security](fundamentals/security)
+
+## SECURITY
+
+* [Audits](security/audit)
 
 ## DEVELOPER CONSOLE
 

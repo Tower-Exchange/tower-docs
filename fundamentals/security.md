@@ -34,7 +34,16 @@ Tower integrates wallet connections through RainbowKit, a robust and widely adop
 
 #### Code Security
 
-Tower has completed manual code reviews of its smart contract and platform code. Smart contract audits by third-party security firms are planned and will be completed before mainnet launch.
+Tower contracts and aggregation routing logic undergo rigorous manual code reviews, automated proof-of-concept testing, and independent third-party audits before and during mainnet deployment.
+
+#### Smart Contract Audits
+
+Independent security reviews and remediation verifications have been conducted by **Olympix**. You can view full vulnerability scans and deployment validation reports on the [Audits](/security/audit) page.
+
+| Auditor | Date | Engagement | Report |
+| :--- | :--- | :--- | :--- |
+| Olympix | Nov 18, 2026 | Olympix BugPocer Report (Security Assessment) | [Report](/assets/Olympix%20BugPocer%20Report.pdf) |
+| Olympix | Nov 18, 2026 | Tower-Exchange-Olympix-Remediation-Report | [Report](/assets/Tower-Exchange-Olympix-Remediation-Report.pdf) |
 
 
 

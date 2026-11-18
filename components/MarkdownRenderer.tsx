@@ -120,27 +120,47 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           thead: ({ children }) => <thead className="bg-[#F8F9FA] text-slate-800 border-b border-slate-200/80">{children}</thead>,
           th: ({ children }) => <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wider text-slate-500">{children}</th>,
           td: ({ children }) => <td className="px-4 py-3 border-t border-slate-100 text-slate-700 font-medium">{children}</td>,
-          a: ({ href, children }) => {
-            const isExternal = href?.startsWith("http");
+          a: ({ node, href, children, className, ...props }: any) => {
+            const isPdf = typeof href === "string" && href.toLowerCase().endsWith(".pdf");
+            const isExternal = (typeof href === "string" && href.startsWith("http")) || isPdf;
+            const textContent = typeof children === "string" ? children.trim() : "";
+            const isReportBadge = textContent.toLowerCase() === "report";
+
+            if (isReportBadge) {
+              return (
+                <a
+                  href={href}
+                  target={isExternal ? "_blank" : undefined}
+                  rel={isExternal ? "noopener noreferrer" : undefined}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg bg-[#EBF4FF] text-[#2563EB] border border-[#BFDBFE] hover:bg-[#DBEAFE] hover:text-[#1D4ED8] transition-all duration-150 shadow-2xs hover:scale-[1.02] active:scale-[0.98]"
+                  {...props}
+                >
+                  <span>{children}</span>
+                  <ExternalLink className="w-3 h-3 text-[#2563EB]/80 shrink-0" />
+                </a>
+              );
+            }
+
             return (
               <a
                 href={href}
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
-                className="inline-flex items-center gap-1 text-[#70B2FF] hover:underline font-semibold transition-colors"
+                className={className || "inline-flex items-center gap-1 text-[#70B2FF] hover:underline font-semibold transition-colors"}
+                {...props}
               >
                 <span>{children}</span>
                 {isExternal && <ExternalLink className="w-3 h-3 text-[#70B2FF]/80 shrink-0" />}
               </a>
             );
           },
-          figure: ({ children, className, ...props }) => (
-            <div className={`my-6 ${className || ""}`} {...props}>
+          figure: ({ node, children, className }: any) => (
+            <div className={`my-6 ${className || ""}`}>
               {children}
             </div>
           ),
-          figcaption: ({ children, className, ...props }) => (
-            <div className={`text-xs text-slate-500 text-center font-medium mt-2 ${className || ""}`} {...props}>
+          figcaption: ({ node, children, className }: any) => (
+            <div className={`text-xs text-slate-500 text-center font-medium mt-2 ${className || ""}`}>
               {children}
             </div>
           ),
